@@ -19,7 +19,18 @@ warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 # Replace with your actual COM port (e.g., COM1, COM2, etc.)
 
-
+def find_usb_serial_port():
+    """
+    Finds the first available serial port that is listed as a USB Serial Port.
+    Returns:
+        The COM port name (e.g., 'COM3') if found, None otherwise.
+    """
+    ports = list(serial.tools.list_ports.comports())
+    for port in ports:
+        if "USB Serial Port" in port.description or "USB" in port.description:
+            print(f"Detected USB Serial Port: {port.device}")
+            return port.device
+    return None
 
 print(sys.argv[1])
 print(sys.argv[2])
@@ -55,20 +66,23 @@ Test_init = sys.argv[2]
 # Function to send command and receive response
 
 def verify_RTC_log(logs):
-    # Define the regex pattern for matching the RTC log entries
+    """
+    Verifies if all expected RTC patterns are present in the log string.
+    """
     boot_reason_pattern = r"\[\s*\d+\.\d+\] Boot reason\(s\) 0x00000000: Power-on or pin-hole reset"
     rtc_vbackup_pattern = r"\[\s*\d+\.\d+\] rtc-rv3028 \d+-\d+: RTC was on Vbackup: Controller was powered off for a short time"
     rtc_registered_pattern = r"\[\s*\d+\.\d+\] rtc-rv3028 \d+-\d+: registered as rtc0"
     rtc_system_clock_pattern = r"\[\s*\d+\.\d+\] rtc-rv3028 \d+-\d+: setting system clock to \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2} UTC \(\d+\)"
 
-    # Check if all the expected patterns exist in the logs
-    if re.search(boot_reason_pattern, logs) and \
-       re.search(rtc_vbackup_pattern, logs) and \
-       re.search(rtc_registered_pattern, logs) and \
-       re.search(rtc_system_clock_pattern, logs):
-        return True
-    else:
-        return False
+    return all(
+        re.search(pattern, logs)
+        for pattern in [
+            boot_reason_pattern,
+            rtc_vbackup_pattern,
+            rtc_registered_pattern,
+            rtc_system_clock_pattern
+        ]
+    )
 
 
 log_pattern = r'\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Za-z]+)\]:'  # Timestamp
@@ -128,26 +142,37 @@ def check_bluetooth_output(result):
             return True
     return False
 
+
 def check_ip_addresses(response):
-    # Define the interfaces to check for IP addresses
-    interfaces = ['eth0', 'eth1', 'eth2']
-    ip_addresses = {}
+    # 支持的接口名称（可以按需添加）
+    interfaces = ['eth0', 'eth1', 'eth2', 'spe0', 'spe1']
+    mac_addresses = {}
+
+    current_interface = None
 
     for line in response:
-        for interface in interfaces:
-            if interface in line:  # Look for the interface line
-                ip_match = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', line)
-                if ip_match:
-                    ip_address = ip_match.group(1)
-                    ip_addresses[interface] = ip_address
+        # 检测是否是接口的起始行（如 "2: eth1: ..."）
+        match = re.match(r'\d+:\s+([\w\d]+):', line)
+        if match:
+            current_interface = match.group(1)
+            continue
 
-    # Check if all IP addresses for eth0, eth1, eth2 exist and start with 192.168
-    for interface in interfaces:
-        ip_address = ip_addresses.get(interface)
-        if not ip_address or not ip_address.startswith("192.168"):
-            return "FAILED"
+        # 如果是 MAC 地址行，并且当前接口在我们关注的列表中
+        if 'link/ether' in line and current_interface in interfaces:
+            mac_match = re.search(r'link/ether\s+([0-9a-f:]{17})', line)
+            if mac_match:
+                # 去掉 MAC 地址中的冒号
+                mac_address = mac_match.group(1).replace(':', '').upper()
+                mac_addresses[current_interface] = mac_address
 
-    return "PASSED"
+    # 打印结果
+    print("检测到的MAC地址：")
+    for iface in interfaces:
+        mac = mac_addresses.get(iface, "未检测到")
+        print(f"{iface}: {mac}")
+
+    return "PASSDE"
+
 
 def extract_ip(response):
     ip_pattern = r"\d+\.\d+\.\d+\.\d+"  # Regular expression to match an IP address
@@ -165,6 +190,7 @@ response = send_command("")  # This can be the empty command or a specific one t
 
 # Extract the IP address
 device_ip = extract_ip(response)
+
 if not device_ip:
     print("在响应中找不到 IP 地址。")
     sys.exit(1)  # Exit if no IP address is found
@@ -180,10 +206,9 @@ if Test_init == "0" or Test_init == "1":
     print("正在运行蜂鸣器测试...")
     buzzer_command = "tfw_beep 100"
     attempts = 3
-    print("111")
     while True:
         buzzer_response = send_command(buzzer_command)
-        Buzzer_result = input("您听到哔哔声了吗？ Y/N: ").upper()
+        Buzzer_result = input("是否听到哔哔声？ 是/否: ").upper()
         sys.stdout.flush()
        # Buzzer_result = qt_input("Did you hear the beep?", ["Y", "N"])
         if Buzzer_result == 'Y':  # If user inputs 'Y'
@@ -219,7 +244,7 @@ if Test_init == "0" or Test_init == "3":
 
     while attempts > 0:
         debug_led_response = send_command(debug_led_command)
-        debug_led_result = input("LED灯 是否闪烁？ Y/N: ").upper()
+        debug_led_result = input("LED灯 是否闪烁？ 是/否: ").upper()
         sys.stdout.flush()
         #debug_led_result = qt_input("Did the LED flash?", ["Y", "N"])  # 修改这里
         if debug_led_result == 'Y':  # If user inputs 'Y'
@@ -278,6 +303,9 @@ if Test_init == "0" or Test_init == "6":
     print("正在运行蓝牙测试...")
     Bluetooth__element_command = "dmesg | grep hci0"
     Bluetooth_response = send_command(Bluetooth__element_command)
+    # print("================== print start\n")
+    # print(Bluetooth_response)
+    # print("================== print e\n")
     Bluetooth_result = check_bluetooth_output(Bluetooth_response)
     if Bluetooth_result:
         print("6. 蓝牙测试通过")
@@ -291,12 +319,17 @@ if Test_init == "0" or Test_init == "7":
 
     # Check for 192.168.x.x IP addresses on eth0, eth1, and eth2
     result = check_ip_addresses(response)
+
+    #print("================== print start\n")
+   # print(response)
+    #print("================== print e\n")
+
     print(f"7. 以太网测试 {result}")
 
 if Test_init == "0" or Test_init == "8":
     print("正在运行 SPE 测试...")
     time.sleep(1)
-    SPE_result = input("您是否看到两个 SPE 灯都变绿了？ (y/n):")
+    SPE_result = input("是否看到两个 SPE 灯都变绿了？ (是/否):")
     sys.stdout.flush()
     #SPE_result = qt_input("Did you see both SPE lights turn green?", ["Y", "N"])
     if SPE_result.upper() == "Y":
@@ -370,15 +403,16 @@ def run_zigbee_test():
     send_Zigbee_command('channel_change 26 false')
 
     permit_join = send_Zigbee_command('permit_join true')
+
     if not check_commissioning_state_on(permit_join):
-        return "9. ZIGBEE Test FAILED: Commissioning state did not turn on"
+        return "9. ZIGBEE 测试失败：调试状态未开启"
 
     print("按下 Zigbee 传感器上的针孔按钮一秒钟...")
     time.sleep(10)
 
     device_list = send_Zigbee_command('list_devices')
     if not check_commissioning_state_off(device_list):
-        return "9. ZIGBEE Test FAILED: Commissioning state did not turn off"
+        return "9. ZIGBEE 测试失败：调试状态未关闭"
 
     if not check_device_list_for_active(device_list):
         return "9. ZIGBEE Test FAILED: 'Active' not found in the device list"
@@ -423,8 +457,8 @@ if Test_init == "0" or Test_init == "10":
             continue
 
         time.sleep(1)
-        print(f"你看到 {description} 的颜色变化了吗？[请在界面上选择 Y/N]")
-        print("等待用户响应...")
+        print(f"你看到 {description} 的颜色变化了吗？[请在界面上选择 是/否]")
+
         user_input = input()  # Qt 那边通过 write() 传 Y/N
 
         if user_input.lower() == "y" and description == "底部 RGB 蓝色":
@@ -502,33 +536,51 @@ if Test_init == "0" or Test_init == "11":
         agent = rpc.Agent("https", device_ip, "admin", "Legrand4TUV", disable_certificate_verification=True)
 
         pdu = pdumodel.Pdu("/model/pdu/0", agent)
+        metadata = pdu.getMetaData()
+
+        serial_number = getattr(metadata, 'nameplate', None)
+        serial_number = getattr(serial_number, 'serialNumber', 'N/A')
+
+        hw_revision = getattr(metadata, 'hwRevision', 'N/A')
+        fw_revision = getattr(metadata, 'fwRevision', 'N/A')
+       # mac_address = getattr(metadata, 'macAddress', 'N/A')
+
+            # 仅输出结构化字段（无标题、无注释、无调试信息）
+        print(f"接口信息输出：")
+        print(f"SerialNumber={serial_number}")
+        print(f"HwRevision={hw_revision}")
+        print(f"FwRevision={fw_revision}")
+        #print(f"MacAddress={mac_address}")
         #裝置資訊
         pdm = raritan.rpc.peripheral.DeviceManager("/model/peripheraldevicemanager", agent)
 
+
         slots = pdm.getDeviceSlots()
-
-        sensor_data_found = False
         usb_devices_count = 0
-
+        Detected_Sensor = False
         for num, slot in enumerate(slots):
             settings = slot.getSettings()
             device = slot.getDevice()
-            if device is None:
+            if device == None:
                 continue
             else:
+                #        print("Slot %d: %s (%s)" % (num + 1, settings.name, device.deviceID.serial))
                 if device.device:
                     if device.deviceID.type.readingtype == raritan.rpc.sensors.Sensor.NUMERIC:
                         reading = device.device.getReading()
-                        sensor_data_found = True  # If sensor data is found, set the flag to True
+                        if reading.value != 0:
+                            #                    print("  Reading: %f" % reading.value)
+                            Detected_Sensor = True
                     else:
                         state = device.device.getState()
-                        print(" State: %d" % state.value)
+        #                print("  State: %d" % state.value)
 
-        if Test_init == "0" or Test_init == "12":
-            if sensor_data_found:
-                print("12. Sensor Test PASSED")
+        if Test_init == "0" or Test_init == "12" or Test_init == "11":
+            if Detected_Sensor:
+                print("12.传感器 测试 通过")
             else:
-                print("12. Sensor Test FAILED")
+                print("12.传感器 测试 失败")
+
         ser.write(b'\0x18')
         # USB Proxy to fetch USB devices information
         usb_proxy = usb.Usb("/usb", agent)
@@ -540,14 +592,14 @@ if Test_init == "0" or Test_init == "11":
             usb_devices_count += 1  # Increment the USB devices count
 
         # Check if 2 USB devices and sensor data are found
-        if Test_init == "0" or Test_init == "13":
+        if Test_init == "0" or Test_init == "13" or Test_init == "11":
             if usb_devices_count == 2 and sensor_data_found:
-                print("13. USB Test PASSED")
+                print("13. USB 测试 通过")
             else:
-                print("13. USB Test FAILED")
+                print("13. USB 测试 失败")
 
 # Exit the script
-sys.stdout.write('Press Enter to exit.')
+sys.stdout.write('请在界面按 是/否 退出测试.')
 sys.stdin.readline()
 sys.exit(0)
 

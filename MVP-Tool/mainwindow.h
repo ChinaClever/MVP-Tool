@@ -2,10 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QMap>
-#include <QString>
-#include <QProcess>
-#include <QMessageBox>
+#include "navbarwid.h"
+#include "MainPage/home_workwid.h"
+#include "setups/setup_mainwid.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,21 +20,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void onStartTestClicked();
-    void onTestItemChanged(int index);
-    void onclearLogBtnclicked();
+protected:
+    void initWid();
 
-
-    void on_Yes_Btn_clicked();
-
-    void on_No_Btn_clicked();
+protected slots:
+    void navBarSlot(int);
 
 private:
     Ui::MainWindow *ui;
-    QMap<QString, QString> m_testArgMap; //
-    bool validateComPort(const QString& comPort);
-    QProcess *process;
 
+    NavBarWid *mNavBarWid;
+    Home_WorkWid *mHomeWid;
+    Setup_MainWid *mSetupWid;
 };
 #endif // MAINWINDOW_H
