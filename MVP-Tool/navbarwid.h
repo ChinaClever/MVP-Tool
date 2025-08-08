@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <QWidget>
+#include "usrlanddlg.h"
 
 namespace Ui {
 class NavBarWid;
@@ -26,14 +27,16 @@ private slots:
     // void on_logBtn_clicked();
 
 
-
+    void recvUserNameSlot(QString str);
     void on_homeBtn_clicked();
 
     void on_setBtn_clicked();
 
+    void on_loginBtn_clicked();
+
 private:
     Ui::NavBarWid *ui;
-
+    UsrLandDlg* mUserLand;
 };
 
 #endif // NAVBARWID_H

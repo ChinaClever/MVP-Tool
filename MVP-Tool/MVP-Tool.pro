@@ -12,7 +12,7 @@ include(common/common.pri)
 include(MainPage/mainpage.pri)
 include(setups/setups.pri)
 include(http/http.pri)
-include(sqlcom/sqlcom.pri)
+
 
 SOURCES += \
     main.cpp \
