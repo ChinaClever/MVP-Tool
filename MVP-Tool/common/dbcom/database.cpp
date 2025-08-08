@@ -8,10 +8,10 @@ DataBaseManager::DataBaseManager(QObject *parent)
     : QObject(parent)
 {
     // 改为带名字的连接
-    if (QSqlDatabase::contains("MvpToolConnection")) {
-        m_db = QSqlDatabase::database("MvpToolConnection");
+    if (QSqlDatabase::contains("MvpTool")) {
+        m_db = QSqlDatabase::database("MvpTool");
     } else {
-        m_db = QSqlDatabase::addDatabase("QSQLITE", "MvpToolConnection");
+        m_db = QSqlDatabase::addDatabase("QSQLITE", "MvpTool");
     }
 }
 
@@ -24,7 +24,7 @@ DataBaseManager& DataBaseManager::instance()
 bool DataBaseManager::init(const QString& dbName)
 {
     QString appDir = QCoreApplication::applicationDirPath();
-    QString dbDir = appDir + "/db";
+    QString dbDir = appDir + "/db/MVP3";
 
     QDir dir;
     if (!dir.exists(dbDir)) {

@@ -10,7 +10,7 @@
 
 DbUser::DbUser()
 {
-    mDb = DataBaseManager::instance().database();
+    //mDb = DataBaseManager::instance().database();
     createTable();
     tableTile = tr("用户管理");
     hiddens << 1 << 2 << 5 << 9;
@@ -50,6 +50,7 @@ DbUser *DbUser::build()
 bool DbUser::insertItem(sUserItem &item)
 {
     item.id = maxId()+1;
+
     QString cmd = "insert into %1 (id,date,time,name,pwd,email,jurisdiction,telephone,remarks,jur) "
                   "values(:id,:date,:time,:name,:pwd,:email,:jurisdiction,:telephone,:remarks,:jur)";
     bool ret = modifyItem(item,cmd.arg(tableName()));

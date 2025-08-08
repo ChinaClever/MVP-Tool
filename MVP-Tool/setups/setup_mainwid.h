@@ -2,6 +2,7 @@
 #define SETUP_MAINWID_H
 #include "serialstatuswid.h"
 #include <QWidget>
+#include "usermainwid.h"
 
 namespace Ui {
 class Setup_MainWid;
@@ -16,10 +17,13 @@ public:
     ~Setup_MainWid();
 
     void intiSerial();
+protected:
+    void initLogCount();
 
 private:
     Ui::Setup_MainWid *ui;
     SerialStatusWid* mDeWid;
+    UserMainWid *mUserWid;
 };
 
 #endif // SETUP_MAINWID_H
