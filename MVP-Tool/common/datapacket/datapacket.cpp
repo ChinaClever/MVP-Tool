@@ -24,7 +24,6 @@ void sDataPacket::init()
     dev->dt.sn.clear();              // 清空序列号
     dev->dt.hwVersion.clear();       // 清空硬件版本
     dev->dt.fwVersion.clear();       // 清空固件版本
-    dev->dt.date.clear();            // 清空日期
     dev->dt.eth1Mac.clear();         // 清空 ETH1 MAC 地址
     dev->dt.eth2Mac.clear();         // 清空 ETH2 MAC 地址
     dev->dt.eth3Mac.clear();         // 清空 ETH3 MAC 地址

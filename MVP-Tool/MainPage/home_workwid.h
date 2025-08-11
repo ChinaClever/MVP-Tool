@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QProcess>
 #include <baseobject.h>
+#include "test_corethread.h"
 namespace Ui {
 class Home_WorkWid;
 }
@@ -33,7 +34,7 @@ private slots:
     void on_NoBtn_clicked();
     void on_YesBtn_clicked();
     void uiClear();
-    void updateInfo();
+    void updateLcd(const QString &message);
 
 private:
     Ui::Home_WorkWid *ui;
@@ -48,6 +49,7 @@ private:
     bool isCheck;
     QTimer *timer;
     bool validateComPort(const QString& comPort);
+    Test_CoreThread *mCoreThread;
 };
 
 #endif // HOME_WORKWID_H

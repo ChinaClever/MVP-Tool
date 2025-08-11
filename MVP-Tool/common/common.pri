@@ -9,6 +9,7 @@ include(sqlcom/sqlcom.pri)
 include(msgcom/msgcom.pri)
 include(cfgcom/cfgcom.pri)
 include(excel/excel.pri)
+include(logcom/logcom.pri)
 HEADERS += \
     $$PWD/globals/globals.h \
     $$PWD/common.h

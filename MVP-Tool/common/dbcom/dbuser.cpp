@@ -6,11 +6,10 @@
  *      Author: Lzy
  */
 #include "dbuser.h"
-#include "database.h"
+
 
 DbUser::DbUser()
 {
-    //mDb = DataBaseManager::instance().database();
     createTable();
     tableTile = tr("用户管理");
     hiddens << 1 << 2 << 5 << 9;

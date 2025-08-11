@@ -5,6 +5,7 @@
 #include "navbarwid.h"
 #include "MainPage/home_workwid.h"
 #include "setups/setup_mainwid.h"
+#include "logmainwid.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,5 +33,6 @@ private:
     NavBarWid *mNavBarWid;
     Home_WorkWid *mHomeWid;
     Setup_MainWid *mSetupWid;
+    LogMainWid *mLog;
 };
 #endif // MAINWINDOW_H

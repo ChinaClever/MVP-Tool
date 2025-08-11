@@ -12,7 +12,8 @@ include(common/common.pri)
 include(MainPage/mainpage.pri)
 include(setups/setups.pri)
 include(http/http.pri)
-
+include(logs/logs.pri)
+include(cores/cores.pri)
 
 SOURCES += \
     main.cpp \

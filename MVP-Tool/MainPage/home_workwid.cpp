@@ -2,6 +2,7 @@
 #include "ui_home_workwid.h"
 #include "createini.h"
 #include "common/globals/globals.h"
+#include "baselogs.h"
 #include "backcolour/backcolourcom.h"
 #include <QMessageBox>
 #include <QDebug>
@@ -17,8 +18,9 @@ Home_WorkWid::Home_WorkWid(QWidget *parent)
     set_background_icon(this,":/image/box_back.jpg");
         timer = new QTimer(this);
     connect(timer,&QTimer::timeout,this,&Home_WorkWid::updateTime);
-
     initFunSlot();
+    mCoreThread = new Test_CoreThread(this);
+    connect(mCoreThread,&Test_CoreThread::updateLcd,this,&Home_WorkWid::updateLcd);
 }
 
 Home_WorkWid::~Home_WorkWid()
@@ -90,6 +92,7 @@ void Home_WorkWid::on_startBtn_clicked()
         }
 
         intiTest();
+
         workProcess();
     }
     else{
@@ -143,12 +146,14 @@ void Home_WorkWid::workProcess()
                 ui->textEdit->append(result);
 
                 if(code == 0 and arg == "0")
-                    updateInfo();
+                    mCoreThread->setFlag(1);
 
-                if(result == "✅ 测试成功" ) mPro->result = Test_Pass;
-                else mPro->result = Test_Fail;
+                if(result == "✅ 测试成功" ) mPro->result = Test_Pass,mDev->dt.state = 1;
+                else mPro->result = Test_Fail,mDev->dt.state = 0;
 
-                qDebug()<<mDev->dt.reason;
+                qDebug()<<code<<' '<<arg;
+                mCoreThread->start();
+                mCoreThread->setFlag(0);
 
                 timer->stop();
                 if(arg == "0"){
@@ -170,7 +175,6 @@ void Home_WorkWid::workProcess()
     process->start("python", args);
 
     if(arg == "0"){
-        mDev->dt.date = QDateTime::currentDateTime().toString("hh:mm:ss");
         ui->startLab->setText(mDev->dt.date);
         ui->endLab->setText("---");
     }
@@ -200,34 +204,22 @@ void Home_WorkWid::updateTime()
     ui->timeLab->setStyleSheet(style);
 }
 
-void Home_WorkWid::updateInfo()
+void Home_WorkWid::updateLcd(const QString &str)
 {
 
-    if(mp[9].isNull())mp[8] = "4E:6B:2A:9C:1D:7F";
-    if(mp[10].isNull())mp[9] = "A1:B2:C3:D4:E5:F6";
-    for(auto [u,v] : mp){
-        qDebug()<<u<<' '<<v;
-    }
-    // qDebug()<<mp.size();
-    // if(mp.size() != 11)qDebug()<<"mac地址不足";
-    // else{
-    // }
-    infoData.setFromMap(mp);
-
-    QString str2 = createIni::toIni2(infoData); //大标签
-    QString str1 = createIni::toIni1(infoData); //小标签
+    // if(mp[9].isNull())mp[8] = "4E:6B:2A:9C:1D:7F";
+    // if(mp[10].isNull())mp[9] = "A1:B2:C3:D4:E5:F6";
 
     //更新测试数据
-    ui->allLcd->display(ui->allLcd->value()+2);
-    if(str2 == "Success")ui->okLcd->display(ui->okLcd->value()+1);
-    else ui->errLcd->display(ui->errLcd->value()+1);
-    if(str1 == "Success")ui->okLcd->display(ui->okLcd->value()+1);
-    else ui->errLcd->display(ui->errLcd->value()+1);
+    ui->allLcd->display(ui->allLcd->value()+1);
+   if(str == "Success")ui->okLcd->display(ui->okLcd->value()+1);
+   else ui->errLcd->display(ui->errLcd->value()+1);
+
     qDebug()<<"alllcd"<<ui->allLcd->value();
     ui->passLcd->display((ui->allLcd->value() == 0 ? 0 : ui->okLcd->value()/ui->allLcd->value()));
 
 
-    qDebug()<<str2<<' '<<str1;
+//    qDebug()<<str2<<' '<<str1;
 }
 
 void Home_WorkWid::intiTest()

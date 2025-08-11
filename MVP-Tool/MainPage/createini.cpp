@@ -12,25 +12,31 @@
 #include <QThread>
 createIni::createIni() {}
 
-QString createIni::toIni1(const InterfaceInfo& data) {
+QString createIni::toIni1(sDevInfo* data) {
     // 字段名
     QString str = "ETH1MAC,ETH2MAC,ETH3MAC,SPE1MAC,SPE2MAC,HW,FW,SN,BTMAC,ZBMAC,DATE,QR";
     QString str2;
 
-    // 填充字段值，去掉 MAC 地址中的冒号
-    for (int i = 0; i < data.v.size(); ++i) {
-        QString value = data.v[i];
-        // 对于 MAC 地址字段（索引 0, 1, 2, 3, 4, 8, 9 对应 eth0, eth1, eth2, spe0, spe1, blueT, zB）
-        if (i == 0 || i == 1 || i == 2 || i == 3 || i == 4  || i == 8 || i == 9) {
-            value = value.replace(":", "");
-        }
-        str2 += value + ",";
-    }
+    auto cleanMac = [](QString mac) {
+        return mac.replace(":", "");
+    };
 
-    // 计算 RF 和 QR
+    // 拼接字段，注意按顺序对应 str 里的字段名
+    str2 += cleanMac(data->eth1Mac) + ",";
+    str2 += cleanMac(data->eth2Mac) + ",";
+    str2 += cleanMac(data->eth3Mac) + ",";
+    str2 += cleanMac(data->spe1Mac) + ",";
+    str2 += cleanMac(data->spe2Mac) + ",";
+    str2 += data->hwVersion + ",";
+    str2 += data->fwVersion + ",";
+    str2 += data->sn + ",";
+    str2 += cleanMac(data->btMac) + ",";
+    str2 += cleanMac(data->zbMac) + ",";
+    str2 += data->date + ",";
     QString rf, time, SN, BT;
-    SN = data.serialNum();
-    BT = data.blueT().replace(":", ""); // 确保蓝牙地址也去掉冒号
+
+    SN = data->sn;
+    BT = data->btMac.replace(":", ""); // 确保蓝牙地址也去掉冒号
     calculateCurrentYearWeek(time);
     rf =  time ;
     QString qr = "https://podview.legrand.com/qr?s=" + SN + "&m=" + BT;
@@ -41,11 +47,11 @@ QString createIni::toIni1(const InterfaceInfo& data) {
     return httpPostIni(str + "\n" + str2,"80"); // 返回 header 和 values，换行分隔
 }
 
-QString createIni::toIni2(const InterfaceInfo& data)
+QString createIni::toIni2(sDevInfo* data)
 {
     QString str = "MAC,SN,QR";
-    QString str2 = data.eth0()+","+data.serialNum()+",";
-    QString SN = data.serialNum() , MAC = data.eth0();
+    QString str2 = data->eth1Mac+","+data->sn+",";
+    QString SN = data->sn , MAC = data->eth1Mac;
     QString qr = "https://podview.legrand.com/qr?s=" + SN + "&m=" + MAC;
     str2 += qr;
 

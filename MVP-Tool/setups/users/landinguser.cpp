@@ -4,8 +4,6 @@
  *      Author: Lzy
  */
 #include "landinguser.h"
-#include "database.h"
-
 
 bool usr_land_jur()
 {

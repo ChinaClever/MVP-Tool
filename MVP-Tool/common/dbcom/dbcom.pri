@@ -1,9 +1,13 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-   # $$PWD/database.h \
-    $$PWD/dbuser.h
+    $$PWD/dblogs.h \
+    $$PWD/dbuser.h \
+    $$PWD/dbmacs.h \
+    $$PWD/dbstates.h
 
 SOURCES += \
-   # $$PWD/database.cpp \
-    $$PWD/dbuser.cpp
+    $$PWD/dblogs.cpp \
+    $$PWD/dbuser.cpp \
+    $$PWD/dbmacs.cpp \
+    $$PWD/dbstates.cpp

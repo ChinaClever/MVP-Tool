@@ -269,6 +269,7 @@ int SqlTableView::getList(QList<QStringList> &list)
 {
     QStringList head;
     head << tr("编号");
+
     for(int i=0; i<mDb->headList.size(); ++i) {
         if(mDb->hiddens.contains(i)) continue;
         head << mDb->headList.at(i);

@@ -32,6 +32,12 @@ void NavBarWid::on_setBtn_clicked()
     emit navBarSig(1);
 }
 
+void NavBarWid::on_logBtn_clicked()
+{
+    emit navBarSig(2);
+}
+
+
 void NavBarWid::on_loginBtn_clicked()
 {
     bool lang = LandingUser::get()->land;
@@ -50,4 +56,6 @@ void NavBarWid::recvUserNameSlot(QString str)
 {
     ui->userLab->setText(str);
 }
+
+
 

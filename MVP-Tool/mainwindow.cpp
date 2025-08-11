@@ -23,6 +23,9 @@ void MainWindow::initWid()
     mSetupWid = new Setup_MainWid(ui->stackedWid);
     ui->stackedWid->addWidget(mSetupWid);
 
+    mLog = new LogMainWid(ui->stackedWid);
+    ui->stackedWid->addWidget(mLog);
+
 }
 
 void MainWindow::navBarSlot(int id)

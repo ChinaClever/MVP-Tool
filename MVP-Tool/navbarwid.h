@@ -34,6 +34,8 @@ private slots:
 
     void on_loginBtn_clicked();
 
+    void on_logBtn_clicked();
+
 private:
     Ui::NavBarWid *ui;
     UsrLandDlg* mUserLand;
