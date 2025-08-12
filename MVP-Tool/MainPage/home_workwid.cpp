@@ -4,6 +4,7 @@
 #include "common/globals/globals.h"
 #include "baselogs.h"
 #include "backcolour/backcolourcom.h"
+#include "msgbox.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
@@ -75,17 +76,32 @@ void Home_WorkWid::uiClear()
     ui->textEdit->clear();
 }
 
+bool Home_WorkWid::pcbCheck()
+{
+    //qDebug()<<ui->pcbCode->text().size();
+    if(ui->pcbCode->text().isEmpty()){
+        MsgBox::critical(0, tr("请输入pcb码"));
+        return 0;
+    }
+    mDev->dt.pcbCode = ui->pcbCode->text();
+    return 1;
+}
+
 void Home_WorkWid::on_startBtn_clicked()
 {
 
     if(ui->startBtn->text() == "开始测试"){
+
+        mPacket->init();
+        if(!pcbCheck())return ;
         allTestState = true;
         if(!intiarg()) return; //寻找 MVP3 py脚本
         if(arg == 0) mPro->allTest = 1;
-        mPacket->init();
         uiClear();
         ui->startBtn->setText("测试中...");
         updateTime();
+        mDev->dt.date = QDateTime::currentDateTime().toString("HH:mm:ss");
+
         if(arg == "0"){
             timer->setInterval(1000);
             timer->start();
@@ -151,7 +167,7 @@ void Home_WorkWid::workProcess()
                 if(result == "✅ 测试成功" ) mPro->result = Test_Pass,mDev->dt.state = 1;
                 else mPro->result = Test_Fail,mDev->dt.state = 0;
 
-                qDebug()<<code<<' '<<arg;
+                //qDebug()<<code<<' '<<arg;
                 mCoreThread->start();
                 mCoreThread->setFlag(0);
 
@@ -161,6 +177,7 @@ void Home_WorkWid::workProcess()
                 }
 
                 ui->startBtn->setText("开始测试");
+                ui->pcbCode->clear();
 
                 this->process->deleteLater();
                 this->process = nullptr;
@@ -215,7 +232,7 @@ void Home_WorkWid::updateLcd(const QString &str)
    if(str == "Success")ui->okLcd->display(ui->okLcd->value()+1);
    else ui->errLcd->display(ui->errLcd->value()+1);
 
-    qDebug()<<"alllcd"<<ui->allLcd->value();
+    //qDebug()<<"alllcd"<<ui->allLcd->value();
     ui->passLcd->display((ui->allLcd->value() == 0 ? 0 : ui->okLcd->value()/ui->allLcd->value()));
 
 
@@ -262,7 +279,7 @@ void Home_WorkWid::on_NoBtn_clicked()
         ui->textEdit->append("否");
         process->write("N\n");
     } else {
-        qDebug() << "⚠️ 测试进程未启动，忽略 N 按钮操作";
+       // qDebug() << "⚠️ 测试进程未启动，忽略 N 按钮操作";
         // 可选：提示用户或日志记录
         // QMessageBox::information(this, "提示", "测试尚未开始，无法发送 N 指令。");
     }
@@ -276,7 +293,7 @@ void Home_WorkWid::on_YesBtn_clicked()
         ui->textEdit->append("是");
         process->write("Y\n");
     } else {
-        qDebug() << "⚠️ 测试进程未启动，忽略 Y 按钮操作";
+        //qDebug() << "⚠️ 测试进程未启动，忽略 Y 按钮操作";
         // 可选：提示用户或日志记录
         // QMessageBox::information(this, "提示", "测试尚未开始，无法发送 Y 指令。");
     }

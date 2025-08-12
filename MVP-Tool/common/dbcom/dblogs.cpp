@@ -22,6 +22,7 @@ void DbLogs::createTable()
         "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
         "date TEXT,"
         "time TEXT,"
+        "sn TEXT,"
         "hw TEXT,"
         "fw TEXT,"
         "eth1 TEXT,"
@@ -33,8 +34,7 @@ void DbLogs::createTable()
         "zb TEXT,"
         "pcbcode TEXT,"
         "state INTEGER,"
-        "reason TEXT,"
-        "sn TEXT"
+        "reason TEXT"
         ");";
 
     QSqlQuery query(mDb);
@@ -55,8 +55,8 @@ DbLogs *DbLogs::bulid()
 bool DbLogs::insertItem(const sLogItem &item)
 {
     QString cmd =
-        "INSERT INTO %1 (date, time, hw, fw, eth1, eth2, eth3, spe1, spe2, bt, zb, pcbcode, state, reason, sn) "
-        "VALUES (:date, :time, :hw, :fw, :eth1, :eth2, :eth3, :spe1, :spe2, :bt, :zb, :pcbcode, :state, :reason, :sn)";
+        "INSERT INTO %1 (date, time, sn, hw, fw, eth1, eth2, eth3, spe1, spe2, bt, zb, pcbcode, state, reason) "
+        "VALUES (:date, :time, :sn, :hw, :fw, :eth1, :eth2, :eth3, :spe1, :spe2, :bt, :zb, :pcbcode, :state, :reason)";
 
     bool ret = modifyItem(item, cmd.arg(tableName()));
     if (ret) emit itemChanged(item.id, Insert);

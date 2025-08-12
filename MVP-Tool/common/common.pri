@@ -10,6 +10,8 @@ include(msgcom/msgcom.pri)
 include(cfgcom/cfgcom.pri)
 include(excel/excel.pri)
 include(logcom/logcom.pri)
+include(idgeneratorcom/idgeneratorcom.pri)
+
 HEADERS += \
     $$PWD/globals/globals.h \
     $$PWD/common.h

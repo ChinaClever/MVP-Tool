@@ -15,6 +15,7 @@ class Home_WorkWid : public QWidget,public BaseObject
 
 public:
     explicit Home_WorkWid(QWidget *parent = nullptr);
+    bool pcbCheck();
     ~Home_WorkWid();
 
 protected:
