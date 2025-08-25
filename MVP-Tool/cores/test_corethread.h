@@ -32,7 +32,7 @@ protected slots:
 
 private:
     TaskType currentTask = PrintLabel1;
-    bool flag;
+    bool flag = 1;
 
 };
 

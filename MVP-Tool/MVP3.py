@@ -171,7 +171,7 @@ def check_ip_addresses(response):
         mac = mac_addresses.get(iface, "未检测到")
         print(f"{iface}: {mac}")
 
-    return "PASSDE"
+    return "PASS"
 
 
 def extract_ip(response):

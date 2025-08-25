@@ -41,21 +41,30 @@ void Test_CoreThread::run()
     if (isRun) return;
     isRun = true;
     QString result;
-
-    if(flag == 1) {
+    if(flag) {
         // 先执行 PrintLabel1
-        result = createIni::toIni1(&mDev->dt);
+        result = createIni::toIni1(&mDev->dt); //大标签
         emit updateLcd(result);
         // 再执行 PrintLabel2
-        result = createIni::toIni2(&mDev->dt);
+        QVector<QString>macs;
+        macs.push_back(mDev->dt.btMac);
+        macs.push_back(mDev->dt.eth1Mac);
+        macs.push_back(mDev->dt.eth2Mac);
+        macs.push_back(mDev->dt.eth3Mac);
+        macs.push_back(mDev->dt.spe1Mac);
+        macs.push_back(mDev->dt.spe2Mac);
+        macs.push_back(mDev->dt.zbMac);
+
+
+        for(int i = 0; i < 1; i ++ ){
+
+            result = createIni::toIni2(&mDev->dt,macs[i]);
+        }
         emit updateLcd(result);
-        // 最后执行 WriteLog
-        workResult();
-    } else {
-        // 只执行 WriteLog
-        workResult();
+        // 最后执行 WriteLog  
     }
 
+    workResult();
     //emit taskFinished(currentTask, result);
 
     isRun = false;

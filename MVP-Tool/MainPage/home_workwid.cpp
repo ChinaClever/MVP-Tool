@@ -92,6 +92,7 @@ void Home_WorkWid::on_startBtn_clicked()
 
     if(ui->startBtn->text() == "开始测试"){
 
+        mCoreThread->setFlag(0);
         mPacket->init();
         if(!pcbCheck())return ;
         allTestState = true;
@@ -168,8 +169,12 @@ void Home_WorkWid::workProcess()
                 else mPro->result = Test_Fail,mDev->dt.state = 0;
 
                 //qDebug()<<code<<' '<<arg;
+#if DeBugMode
+                //调试用
+                qDebug()<<"test";
+                mCoreThread->setFlag(1);
+#endif
                 mCoreThread->start();
-                mCoreThread->setFlag(0);
 
                 timer->stop();
                 if(arg == "0"){

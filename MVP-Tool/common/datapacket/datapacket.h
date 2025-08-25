@@ -2,6 +2,7 @@
 #define DATAPACKET_H
 #include <QColor>
 #include <QtCore>
+#define DeBugMode 0
 struct sDevInfo
 {
     QString sn;                // 序列号

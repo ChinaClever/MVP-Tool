@@ -14,14 +14,24 @@ createIni::createIni() {}
 
 QString createIni::toIni1(sDevInfo* data) {
     // 字段名
-    QString str = "ETH1MAC,ETH2MAC,ETH3MAC,SPE1MAC,SPE2MAC,HW,FW,SN,BTMAC,ZBMAC,DATE,QR";
+
+    QString str = "BAR,IPADDR,ETH1MAC,ETH2MAC,ETH3MAC,SPE1MAC,SPE2MAC,HW,FW,SN,BTMAC,ZBMAC,DATE,QR";
     QString str2;
 
     auto cleanMac = [](QString mac) {
         return mac.replace(":", "");
     };
 
+#if DeBugMode
+    data->btMac = "4E6B2A9C1D7F";
+    data->zbMac = "A1B2C3D4E5F6";
+    data->sn = "048299999999900003";
+#endif
+
     // 拼接字段，注意按顺序对应 str 里的字段名
+    QString ss = data->sn.right(5);
+    str2 += data->sn + ",";
+    str2 += "https://podmaster-" + ss + ".local" + ",";
     str2 += cleanMac(data->eth1Mac) + ",";
     str2 += cleanMac(data->eth2Mac) + ",";
     str2 += cleanMac(data->eth3Mac) + ",";
@@ -32,9 +42,8 @@ QString createIni::toIni1(sDevInfo* data) {
     str2 += data->sn + ",";
     str2 += cleanMac(data->btMac) + ",";
     str2 += cleanMac(data->zbMac) + ",";
-    str2 += data->date + ",";
+    //str2 += data->date + ",";
     QString rf, time, SN, BT;
-
     SN = data->sn;
     BT = data->btMac.replace(":", ""); // 确保蓝牙地址也去掉冒号
     calculateCurrentYearWeek(time);
@@ -47,11 +56,17 @@ QString createIni::toIni1(sDevInfo* data) {
     return httpPostIni(str + "\n" + str2,"80"); // 返回 header 和 values，换行分隔
 }
 
-QString createIni::toIni2(sDevInfo* data)
+QString createIni::toIni2(sDevInfo* data, const QString mac)
 {
     QString str = "MAC,SN,QR";
-    QString str2 = data->eth1Mac+","+data->sn+",";
-    QString SN = data->sn , MAC = data->eth1Mac;
+#if DeBugMode
+    data->sn = "048299999999900006";
+#endif
+    // 拼接字段，注意按顺序对应 str 里的字段名
+    QString ss = data->sn.right(5);
+
+    QString str2 = "("+mac+"),"+ss+",";
+    QString SN = data->sn , MAC = mac;
     QString qr = "https://podview.legrand.com/qr?s=" + SN + "&m=" + MAC;
     str2 += qr;
 
@@ -60,7 +75,7 @@ QString createIni::toIni2(sDevInfo* data)
 
 QString createIni::httpPostIni(const QString& data, const QString& host) {
     // 构造 URL
-    QString url = QString("http://%1:%2/Integration/MVP3/Execute").arg("127.0.0.1").arg(host);
+    QString url = QString("http://%1:%2/Integration/MVP3/Execute").arg("192.168.1.16").arg(host);
     qDebug() << "URL:" << url;
     qDebug() << "Data:" << data;
     QString str = "";

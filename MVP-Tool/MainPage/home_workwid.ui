@@ -408,7 +408,7 @@
       <item row="2" column="2">
        <widget class="QLabel" name="label_19">
         <property name="text">
-         <string>spe0：</string>
+         <string>SPE1：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -445,7 +445,7 @@
       <item row="3" column="2">
        <widget class="QLabel" name="label_20">
         <property name="text">
-         <string>spe1：</string>
+         <string>SPE2：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -455,7 +455,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>hw版本：</string>
+         <string>HW版本：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -465,7 +465,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label_18">
         <property name="text">
-         <string>eth1：</string>
+         <string>ETH2：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -475,7 +475,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>序列号：</string>
+         <string>序列号Serial Number：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -485,7 +485,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_13">
         <property name="text">
-         <string>Mac地址：</string>
+         <string>PCB码：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -537,7 +537,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_14">
         <property name="text">
-         <string>eth0：</string>
+         <string>ETH1：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -574,7 +574,7 @@
       <item row="4" column="0">
        <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>eth2：</string>
+         <string>ETH3：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -584,7 +584,7 @@
       <item row="4" column="2">
        <widget class="QLabel" name="label_21">
         <property name="text">
-         <string>BT：</string>
+         <string>Bluetooth：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -594,7 +594,7 @@
       <item row="5" column="0">
        <widget class="QLabel" name="label_22">
         <property name="text">
-         <string>ZB：</string>
+         <string>Zigbee：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -604,7 +604,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_11">
         <property name="text">
-         <string>fw版本：</string>
+         <string>FW版本：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
