@@ -71,3 +71,87 @@ setups/flash/
 - 烧录前请确保设备处于正确的烧录模式
 - 建议在烧录过程中不要断开串口连接
 - 如遇到烧录失败，请检查固件文件格式和串口连接状态
+
+## 🚀 **解决 Git 引用错误的步骤**
+
+### **步骤 1: 清理远程引用**
+```bash
+# 进入项目目录
+cd /mnt/d/GitHub/MVP-Tool/MVP-Tool
+
+# 清理过时的远程引用
+git remote prune origin
+
+# 或者强制清理所有远程引用
+git remote prune origin --dry-run  # 先查看会删除什么
+git remote prune origin             # 执行清理
+```
+
+### **步骤 2: 重新获取远程分支**
+```bash
+# 重新获取远程分支信息
+git fetch origin
+
+# 或者强制重新获取
+git fetch origin --force
+```
+
+### **步骤 3: 如果问题仍然存在，尝试重置远程引用**
+```bash
+# 删除有问题的远程引用
+git update-ref -d refs/remotes/origin/memorize
+
+# 重新获取
+git fetch origin
+```
+
+### **步骤 4: 检查 Git 配置**
+```bash
+# 检查远程仓库配置
+git remote -v
+
+# 检查当前分支状态
+git branch -a
+git status
+```
+
+### **步骤 5: 如果以上方法都不行，尝试重新克隆**
+```bash
+# 备份当前工作（如果有未提交的更改）
+cd ..
+cp -r MVP-Tool MVP-Tool-backup
+
+# 重新克隆仓库
+git clone https://github.com/ChinaClever/MVP-Tool.git MVP-Tool-new
+
+# 将您的更改复制到新克隆的仓库
+cp -r MVP-Tool-backup/setups/flash MVP-Tool-new/setups/
+```
+
+## 📋 **关于您的烧录功能模块**
+
+我注意到您已经对烧录模块进行了一些调整：
+
+1. ✅ **修复了编译配置**: 将 `include(setups/flash/flash.pri)` 改为 `include(setups/flash.pri)`
+2. ✅ **调整了UI尺寸**: 优化了界面大小
+3. ✅ **注释了用户管理页面**: 暂时禁用了用户管理功能，专注于烧录功能
+
+##  **建议的下一步**
+
+1. **先解决 Git 问题**: 使用上面的命令清理远程引用
+2. **测试编译**: 确保烧录模块能正常编译
+3. **功能测试**: 测试烧录功能的基本操作
+
+## 💡 **如果 Git 问题持续存在**
+
+如果 Git 问题持续存在，可能是由于：
+- 网络连接问题
+- GitHub 服务器临时问题
+- 本地 Git 仓库损坏
+
+您可以尝试：
+- 等待一段时间后重试
+- 检查网络连接
+- 使用 `git gc` 清理本地仓库
+
+需要我帮您进行其他调整吗？或者您想先解决 Git 问题再继续开发烧录功能？
