@@ -11,6 +11,7 @@ CONFIG += c++17
 include(common/common.pri)
 include(MainPage/mainpage.pri)
 include(setups/setups.pri)
+include(setups/flash.pri)
 include(http/http.pri)
 include(logs/logs.pri)
 include(cores/cores.pri)
