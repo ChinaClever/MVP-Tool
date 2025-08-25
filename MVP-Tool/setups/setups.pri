@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 include(users/users.pri)
+include(flash/flash.pri)
 
 FORMS += \
     $$PWD/setup_mainwid.ui

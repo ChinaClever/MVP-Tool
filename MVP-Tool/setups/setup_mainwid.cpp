@@ -9,7 +9,12 @@ Setup_MainWid::Setup_MainWid(QWidget *parent)
     intiSerial();
         groupBox_background_icon(this);
     mUserWid = new UserMainWid(ui->stackedWid);
-    ui->stackedWid->addWidget(mUserWid);
+    //ui->stackedWid->addWidget(mUserWid);
+    
+    // 添加烧录页面
+    mFlashWid = new Flash_MainWid(ui->stackedWid);
+    ui->stackedWid->addWidget(mFlashWid);
+    
     initLogCount();
 }
 

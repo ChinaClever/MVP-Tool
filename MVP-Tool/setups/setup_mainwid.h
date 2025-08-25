@@ -3,6 +3,7 @@
 #include "serialstatuswid.h"
 #include <QWidget>
 #include "usermainwid.h"
+#include "flash/flash_mainwid.h"
 
 namespace Ui {
 class Setup_MainWid;
@@ -24,6 +25,7 @@ private:
     Ui::Setup_MainWid *ui;
     SerialStatusWid* mDeWid;
     UserMainWid *mUserWid;
+    Flash_MainWid *mFlashWid;
 };
 
 #endif // SETUP_MAINWID_H
