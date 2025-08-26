@@ -15,8 +15,10 @@ public:
     static DeviceIdGenerator& instance();
     QString getSN(const QString& type = "Smart");
     QString getMac(const QString& type);
-
+    void initMac();
     void setMacRange(const QString& type, const QString& start, const QString& end);
+
+    QMap<QString,MacRange>getMacs()const;
 
 private:
     DeviceIdGenerator();

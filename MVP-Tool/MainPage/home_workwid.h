@@ -23,7 +23,6 @@ protected:
 
 private slots:
     void updateTime();
-    void on_startBtn_clicked();
     bool intiarg(); //初始化参数
     void intiTest();   //初始化输出框
     void workProcess();
@@ -36,6 +35,9 @@ private slots:
     void on_YesBtn_clicked();
     void uiClear();
     void updateLcd(const QString &message);
+
+    void on_startBtn_clicked();
+    void on_burnBtn_clicked();
 
 private:
     Ui::Home_WorkWid *ui;

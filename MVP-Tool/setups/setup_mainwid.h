@@ -3,7 +3,7 @@
 #include "serialstatuswid.h"
 #include <QWidget>
 #include "usermainwid.h"
-
+#include "deviceidgenerator.h"
 namespace Ui {
 class Setup_MainWid;
 }
@@ -17,10 +17,13 @@ public:
     ~Setup_MainWid();
 
     void intiSerial();
+public slots:
+    void renewMacSlot();
 protected:
     void initLogCount();
 
 private:
+    DeviceIdGenerator *gen;
     Ui::Setup_MainWid *ui;
     SerialStatusWid* mDeWid;
     UserMainWid *mUserWid;
