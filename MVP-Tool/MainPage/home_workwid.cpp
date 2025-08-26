@@ -49,10 +49,10 @@ bool Home_WorkWid::intiarg()
     }
 
     arg = QString::number(ui->modeBox->currentIndex());
-    scriptPath = "D:/test/word_test/MVP3/MVP-Tool/MVP3.py";
+    scriptPath = "/home/ubuntu/MVP3/MVP-Tool-main/MVP-Tool/MVP3.py";
 
     if (!QFile::exists(scriptPath)) {
-        QMessageBox::critical(this, "错误", "找不到测试脚本: MVP3.exe");
+        QMessageBox::critical(this, "错误", "找不到测试脚本: MVP3.py");
         return false;
     }
 
@@ -109,7 +109,7 @@ void Home_WorkWid::on_startBtn_clicked()
         }
 
         intiTest();
-
+        mPro->step = Test_Start;
         workProcess();
     }
     else{
@@ -119,6 +119,7 @@ void Home_WorkWid::on_startBtn_clicked()
         if(ret == QMessageBox::Yes) {
             ui->startBtn->setText("开始");
             mPro->result = Test_Fail;
+            mPro->step = Test_End;
             qDebug()<<mPro->result;
             process->kill();
             ui->textEdit->append("提前结束");
@@ -194,7 +195,7 @@ void Home_WorkWid::workProcess()
          << digits
          << arg;
 
-    process->start("python", args);
+    process->start("python3", args);
 
     if(arg == "0"){
         ui->startLab->setText(mDev->dt.date);
@@ -207,6 +208,8 @@ void Home_WorkWid::workProcess()
         process->deleteLater();
         process = nullptr;
     }
+
+
 }
 
 QString Home_WorkWid::getTime()
@@ -402,4 +405,9 @@ void Home_WorkWid::updateResult()
     // QTimer::singleShot(450,this,SLOT(updateCntSlot()));
     str = QTime::currentTime().toString("hh:mm:ss");
     ui->endLab->setText(str);
+}
+
+void Home_WorkWid::on_burnBtn_clicked()
+{
+    mPro->step = Test_Set;
 }

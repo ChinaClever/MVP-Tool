@@ -5,6 +5,8 @@
 #define DeBugMode 0
 struct sDevInfo
 {
+    QString img;
+
     QString sn;                // 序列号
     QString hwVersion;         // 硬件版本
     QString fwVersion;         // 固件版本

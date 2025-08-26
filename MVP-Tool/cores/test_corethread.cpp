@@ -9,39 +9,18 @@
 Test_CoreThread::Test_CoreThread(QObject *parent) : BaseThread(parent)
 {
 
+    mFab = Test_Fabpartition::build(this);
 }
 
 void Test_CoreThread::initFunSlot()
 {
-
 }
 
 
 void Test_CoreThread::workDown()
-{   /*
-    bool ret = programFab(1);
-    if(ret) {
-        ret =  waitFor();
-        if(ret) ret = mNetWork->startProcess();
-        if(ret) ret = macSnCheck();
-        //if(ret) ret = printer();
-    }*/
-}
-
-void Test_CoreThread::workResult()
 {
-    BaseLogs *logs = BaseLogs::bulid();
-    bool res = logs->setLogs(mDev->dt);
-
-    qDebug()<<"res: "<<res;
-}
-
-void Test_CoreThread::run()
-{
-    if (isRun) return;
-    isRun = true;
-    QString result;
     if(flag) {
+        QString result;
         // 先执行 PrintLabel1
         result = createIni::toIni1(&mDev->dt); //大标签
         emit updateLcd(result);
@@ -61,11 +40,47 @@ void Test_CoreThread::run()
             result = createIni::toIni2(&mDev->dt,macs[i]);
         }
         emit updateLcd(result);
-        // 最后执行 WriteLog  
+        // 最后执行 WriteLog
     }
 
     workResult();
     //emit taskFinished(currentTask, result);
+}
+
+void Test_CoreThread::workResult()
+{
+    BaseLogs *logs = BaseLogs::bulid();
+    bool res = logs->setLogs(mDev->dt);
+
+    qDebug()<<"res: "<<res;
+}
+
+bool Test_CoreThread::initFun()
+{
+    bool ret = updatePro(tr("即将开始"));
+    return  ret;
+}
+
+bool Test_CoreThread::programFab()
+{
+    bool ret = mFab->check();
+    if(ret){
+        if(mDt->img.size()){
+
+        }
+    }
+}
+
+void Test_CoreThread::run()
+{
+    if (isRun) return;
+    isRun = true;
+
+    switch(mPro->step){
+        case Test_Start : workDown();break;
+        case Test_Set : break;
+    }
+
 
     isRun = false;
 }

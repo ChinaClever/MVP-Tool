@@ -1,8 +1,8 @@
 #ifndef TEST_CORETHREAD_H
 #define TEST_CORETHREAD_H
 #include "baseobject.h"
-
-
+#include "deviceidgenerator.h"
+#include "test_fabpartition.h"
 class Test_CoreThread : public BaseThread
 {
     Q_OBJECT
@@ -26,6 +26,8 @@ protected:
     void run();
     void workDown();
     void workResult();
+    bool initFun();
+    bool programFab();
 
 protected slots:
     void initFunSlot();
@@ -33,6 +35,8 @@ protected slots:
 private:
     TaskType currentTask = PrintLabel1;
     bool flag = 1;
+    DeviceIdGenerator *gen;
+    Test_Fabpartition *mFab;
 
 };
 
