@@ -3,8 +3,12 @@
 #include "serialstatuswid.h"
 #include <QWidget>
 #include "usermainwid.h"
+<<<<<<< Updated upstream
 #include "flash/flash_mainwid.h"
 
+=======
+#include "deviceidgenerator.h"
+>>>>>>> Stashed changes
 namespace Ui {
 class Setup_MainWid;
 }
@@ -18,10 +22,13 @@ public:
     ~Setup_MainWid();
 
     void intiSerial();
+public slots:
+    void renewMacSlot();
 protected:
     void initLogCount();
 
 private:
+    DeviceIdGenerator *gen;
     Ui::Setup_MainWid *ui;
     SerialStatusWid* mDeWid;
     UserMainWid *mUserWid;

@@ -1,6 +1,9 @@
 #include "deviceidgenerator.h"
 #include <QDateTime>
 #include <QByteArray>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QMap>
 DeviceIdGenerator& DeviceIdGenerator::instance()
 {
     static DeviceIdGenerator instance;
@@ -9,12 +12,17 @@ DeviceIdGenerator& DeviceIdGenerator::instance()
 
 DeviceIdGenerator::DeviceIdGenerator()
 {
-
+    initMac();
 }
 
 DeviceIdGenerator::~DeviceIdGenerator()
 {
 
+}
+
+QMap<QString,MacRange>DeviceIdGenerator::getMacs()const
+{
+    return m_macRanges;
 }
 
 void DeviceIdGenerator::setMacRange(const QString& type, const QString& start, const QString& end)
@@ -24,6 +32,39 @@ void DeviceIdGenerator::setMacRange(const QString& type, const QString& start, c
     range.endMac = normalizeMac(end);
     range.currentMac.clear();
     m_macRanges[type] = range;
+}
+
+void DeviceIdGenerator::initMac()
+{
+    setMacRange("mac","2C:26:5F:38:00:00","2C:26:5F:38:00:00");
+    setMacRange("zigbee","1C:26:5F:38:00:00","1C:26:5F:38:00:00");
+
+    QSettings settings(QCoreApplication::applicationDirPath() + "/db/MVP3/cfg.ini",QSettings::IniFormat);
+    settings.beginGroup("device");
+
+    for(auto it = m_macRanges.begin(); it != m_macRanges.end(); ++it){
+        const QString type = it.key().toLower();
+        MacRange &range = it.value();
+
+        QString last = type + "_last_mac";
+        QString start = type + "_start_mac";
+        QString end = type + "_end_mac";
+
+        range.currentMac = settings.value(last,range.startMac).toString();
+        range.startMac   = settings.value(start,range.startMac).toString();
+        range.endMac   = settings.value(end,range.endMac).toString();
+
+        if(!settings.contains(last)){
+            settings.setValue(last,range.currentMac);
+        }
+        if(!settings.contains(start)){
+            settings.setValue(start,range.startMac);
+        }
+        if(!settings.contains(end)){
+            settings.setValue(end,range.endMac);
+        }
+    }
+    settings.endGroup();
 }
 
 QString DeviceIdGenerator::normalizeMac(const QString& mac) const
@@ -63,26 +104,22 @@ QString DeviceIdGenerator::getMac(const QString& type)
         return QString();  // 类型不存在，返回空
 
     MacRange& range = m_macRanges[type];
-    QString key = QString("device/%1_last_mac").arg(type.toLower());
 
-    // 下面配置文件读写暂时注释，后续启用时取消注释
-    // QSettings settings("config.ini", QSettings::IniFormat);
-    // if (range.currentMac.isEmpty())
-    //     range.currentMac = settings.value(key).toString();
-
-    if (range.currentMac.isEmpty())
+    if(range.currentMac.isEmpty()){
         range.currentMac = range.startMac;
-    else
-    {
+    }
+    else{
         QString nextMac = incrementMac(range.currentMac);
-        if (nextMac.compare(range.endMac, Qt::CaseInsensitive) > 0)
-            nextMac = range.startMac;
-        range.currentMac = nextMac;
+        if(nextMac.compare(range.endMac,Qt::CaseInsensitive)>0)
+                nextMac = range.startMac;
+       range.currentMac = nextMac;
     }
 
-    // 设置当前MAC到配置文件，暂时注释
-    // settings.setValue(key, range.currentMac);
-
+    QSettings settings(QCoreApplication::applicationDirPath() + "/db/MVP3/cfg.ini");
+    settings.beginGroup("device");
+    QString typeKey = type.toLower() + "_last_mac";
+    settings.setValue(typeKey,range.currentMac);
+    settings.endGroup();
     return range.currentMac;
 }
 

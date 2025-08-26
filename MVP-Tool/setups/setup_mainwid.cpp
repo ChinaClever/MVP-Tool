@@ -4,18 +4,39 @@
 Setup_MainWid::Setup_MainWid(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Setup_MainWid)
+
 {
     ui->setupUi(this);
     intiSerial();
-        groupBox_background_icon(this);
+
+    groupBox_background_icon(this);
     mUserWid = new UserMainWid(ui->stackedWid);
+<<<<<<< Updated upstream
     //ui->stackedWid->addWidget(mUserWid);
     
     // 添加烧录页面
     mFlashWid = new Flash_MainWid(ui->stackedWid);
     ui->stackedWid->addWidget(mFlashWid);
     
+=======
+    ui->stackedWid->addWidget(mUserWid);
+    gen = &DeviceIdGenerator::instance();
+>>>>>>> Stashed changes
     initLogCount();
+    renewMacSlot();
+}
+
+
+void Setup_MainWid::renewMacSlot()
+{
+    auto Mac = gen->getMacs();
+    ui->startMacLab->setText(Mac["mac"].startMac);
+    ui->endMacLab->setText(Mac["mac"].endMac);
+    ui->CurMacLab->setText(Mac["mac"].currentMac);
+    ui->ZBstartMacLab->setText(Mac["zigbee"].startMac);
+    ui->ZBendMacLab->setText(Mac["zigbee"].endMac);
+    ui->ZBCurMacLab->setText(Mac["zigbee"].currentMac);
+
 }
 
 void Setup_MainWid::intiSerial()
