@@ -20,6 +20,8 @@ public:
 
 protected:
     QString getTime();
+signals:
+    void renewSig();
 
 private slots:
     void updateTime();

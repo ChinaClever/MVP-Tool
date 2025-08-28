@@ -1,7 +1,7 @@
 #ifndef TEST_FABPARTITION_H
 #define TEST_FABPARTITION_H
+#include "baseobject.h"
 #include <QObject>
-#include "baselogs.h"
 class Test_Fabpartition : public BaseThread
 {
     Q_OBJECT
@@ -11,6 +11,13 @@ public:
 
     bool check();
     bool programFull();
+    bool workDown();
+    bool createFab();
+    bool changePermissions();
+    void secure_boot_prov();
+    bool programFab();
+    bool readOutput(QProcess &pro);
+    bool mvFile(bool);
 protected:
     bool at91recovery();
     bool devExist();

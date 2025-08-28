@@ -22,6 +22,7 @@ Home_WorkWid::Home_WorkWid(QWidget *parent)
     initFunSlot();
     mCoreThread = new Test_CoreThread(this);
     connect(mCoreThread,&Test_CoreThread::updateLcd,this,&Home_WorkWid::updateLcd);
+
 }
 
 Home_WorkWid::~Home_WorkWid()
@@ -410,4 +411,16 @@ void Home_WorkWid::updateResult()
 void Home_WorkWid::on_burnBtn_clicked()
 {
     mPro->step = Test_Set;
+    // 生成一批（6个mac + 1个zigbee），暂存在单例里
+    auto batch = DeviceIdGenerator::instance().allocateBatch();
+
+    qDebug() << "sn" << DeviceIdGenerator::instance().CreateSN();
+    qDebug() << "mac:" << batch["mac"];
+    qDebug() << "zigbee:" << batch["zigbee"];
+
+    // 烧录
+    if (1) {
+        DeviceIdGenerator::instance().saveMacs(); // 更新配置文件
+    }
+
 }

@@ -66,8 +66,10 @@ bool Test_CoreThread::programFab()
     bool ret = mFab->check();
     if(ret){
         if(mDt->img.size()){
-
+            ret = mFab->programFull();
         }
+
+        ret = mFab->workDown();
     }
 }
 
