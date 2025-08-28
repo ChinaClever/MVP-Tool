@@ -7,6 +7,7 @@ BaseObject::BaseObject()
     mDev = mPacket->getDev();
     // mData = &(mDev->data);
     mDt = &(mDev->dt);
+    mIdGen = &DeviceIdGenerator::instance();
 }
 
 BaseThread::BaseThread(QObject *parent) : QThread(parent)

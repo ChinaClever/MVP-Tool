@@ -1,6 +1,7 @@
 #ifndef BASEOBJECT_H
 #define BASEOBJECT_H
 #include "datapacket.h"
+#include "idgeneratorcom/deviceidgenerator.h"
 class BaseObject
 {
 public:
@@ -14,6 +15,7 @@ protected:
     sProgress *mPro;
     // sDevObj *mData;
     sDataPacket *mPacket;
+    DeviceIdGenerator *mIdGen;
 };
 
 class BaseThread : public QThread, public BaseObject

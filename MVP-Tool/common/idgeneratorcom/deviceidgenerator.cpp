@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include <QMap>
+#include <QDebug>
 DeviceIdGenerator& DeviceIdGenerator::instance()
 {
     static DeviceIdGenerator instance;
@@ -12,7 +13,7 @@ DeviceIdGenerator& DeviceIdGenerator::instance()
 
 DeviceIdGenerator::DeviceIdGenerator()
 {
-    initMac();
+    initMac(0);
 }
 
 DeviceIdGenerator::~DeviceIdGenerator()
@@ -34,7 +35,7 @@ void DeviceIdGenerator::setMacRange(const QString& type, const QString& start, c
     m_macRanges[type] = range;
 }
 
-void DeviceIdGenerator::initMac()
+void DeviceIdGenerator::initMac(bool x)
 {
     setMacRange("mac","2C:26:5F:38:00:00","2C:26:5F:38:00:00");
     setMacRange("zigbee","1C:26:5F:38:00:00","1C:26:5F:38:00:00");
@@ -65,17 +66,29 @@ void DeviceIdGenerator::initMac()
         }
     }
     settings.endGroup();
+    setMacs(x);
 }
 
 QString DeviceIdGenerator::normalizeMac(const QString& mac) const
 {
     QString ret = mac.toUpper();
-    ret.remove(':');   // 去掉冒号（如果有）
-    ret.remove(' ');   // 去掉空格（如果有）
+  //  ret.remove(':');   // 去掉冒号（如果有）
+    //ret.remove(' ');   // 去掉空格（如果有）
     return ret;
 }
 
-QString DeviceIdGenerator::getSN(const QString &type)
+QString DeviceIdGenerator::formatMacWithColons(const QString& mac) const
+{
+    QString formatted;
+    for (int i = 0; i < mac.length(); i += 2) {
+        if (i != 0) formatted.append(':');
+        formatted.append(mac.mid(i, 2));
+    }
+    return formatted;
+}
+
+
+QString DeviceIdGenerator::CreateSN(const QString &type)
 {
     auto secondsSinceMidnight = []() -> int {
         QTime t = QTime::currentTime();
@@ -98,7 +111,24 @@ QString DeviceIdGenerator::getSN(const QString &type)
     return m_sn;
 }
 
-QString DeviceIdGenerator::getMac(const QString& type)
+void DeviceIdGenerator::setMacs(bool x)
+{
+
+    mac.MAC = getMac("mac");
+    mac.MAC1 = getMac("mac");
+    mac.MAC2 = getMac("mac");
+    mac.MAC3 = getMac("mac");
+    mac.MAC4 = getMac("mac");
+    mac.BLUETOOTH_MAC = getMac("mac");
+    mac.ZIGBEE_MAC = getMac("zigbee");
+    if(x){
+        wirteMac("mac");
+        wirteMac("zigbee");
+
+    }
+}
+
+QString DeviceIdGenerator::getMac(const QString& type) //获取mac地址
 {
     if (!m_macRanges.contains(type))
         return QString();  // 类型不存在，返回空
@@ -115,12 +145,18 @@ QString DeviceIdGenerator::getMac(const QString& type)
        range.currentMac = nextMac;
     }
 
+    return formatMacWithColons(range.currentMac);
+}
+
+void DeviceIdGenerator::wirteMac(const QString &type)
+{
+    MacRange& range = m_macRanges[type];
     QSettings settings(QCoreApplication::applicationDirPath() + "/db/MVP3/cfg.ini");
     settings.beginGroup("device");
-    QString typeKey = type.toLower() + "_last_mac";
+    QString typeKey = type.toLower() + "_l1ast_mac";
+    qDebug()<<range.currentMac;
     settings.setValue(typeKey,range.currentMac);
     settings.endGroup();
-    return range.currentMac;
 }
 
 QString DeviceIdGenerator::incrementMac(const QString& mac)

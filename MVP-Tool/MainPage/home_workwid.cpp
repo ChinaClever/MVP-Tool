@@ -18,10 +18,27 @@ Home_WorkWid::Home_WorkWid(QWidget *parent)
     ui->setupUi(this);
     set_background_icon(this,":/image/box_back.jpg");
         timer = new QTimer(this);
+        time  = new QTimer(this);
+        time->start(500);
+        connect(time,SIGNAL(timeout()),this,SLOT(timeoutDone()));
     connect(timer,&QTimer::timeout,this,&Home_WorkWid::updateTime);
     initFunSlot();
     mCoreThread = new Test_CoreThread(this);
     connect(mCoreThread,&Test_CoreThread::updateLcd,this,&Home_WorkWid::updateLcd);
+
+    connect(mCoreThread,SIGNAL(fabSigToMain(QString)),this,SLOT(onFabSigFromThread(QString)));
+}
+
+void Home_WorkWid::onFabSigFromThread(const QString &message)
+{
+    QTextCharFormat fmt;
+    //fmt.setForeground(QColor("blue"));
+    ui->textEdit->mergeCurrentCharFormat(fmt);
+    ui->textEdit->insertPlainText(message);
+
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->textEdit->setTextCursor(cursor);
 }
 
 Home_WorkWid::~Home_WorkWid()
@@ -130,6 +147,21 @@ void Home_WorkWid::on_startBtn_clicked()
 
 }
 
+void Home_WorkWid::timeoutDone()
+{
+    insertText();
+}
+
+void Home_WorkWid::insertText()
+{
+    while(mPro->status.size()) {
+        //setTextColor();
+        QString str = QString::number(mId++) + "、"+ mPro->status.first() + "\n";
+        ui->textEdit->insertPlainText(str);
+        mPro->status.removeFirst();
+        mPro->pass.removeFirst();
+    }
+}
 void Home_WorkWid::initFunSlot()
 {
     mPro->step = Test_End;
@@ -406,8 +438,25 @@ void Home_WorkWid::updateResult()
     str = QTime::currentTime().toString("hh:mm:ss");
     ui->endLab->setText(str);
 }
+void Home_WorkWid::setTextColor()
+{
+    QColor color("black");
+    bool pass = mPro->pass.first();
+    if(!pass) color = QColor("red");
+    ui->textEdit->moveCursor(QTextCursor::Start);
 
+    QTextCharFormat fmt;//文本字符格式
+    fmt.setForeground(color);// 前景色(即字体色)设为color色
+    QTextCursor cursor = ui->textEdit->textCursor();//获取文本光标
+    cursor.mergeCharFormat(fmt);//光标后的文字就用该格式显示
+    ui->textEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
+}
 void Home_WorkWid::on_burnBtn_clicked()
 {
+    mId = 0;
+    mIdGen->CreateSN();
+    mIdGen->initMac(1);
+    ui->textEdit->clear();
     mPro->step = Test_Set;
+    mCoreThread->start();
 }

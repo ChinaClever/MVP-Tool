@@ -14,6 +14,7 @@ Test_CoreThread::Test_CoreThread(QObject *parent) : BaseThread(parent)
 
 void Test_CoreThread::initFunSlot()
 {
+    connect(mFab, &Test_Fabpartition::fabSig, this, &Test_CoreThread::fabSigToMain);
 }
 
 
@@ -33,7 +34,6 @@ void Test_CoreThread::workDown()
         macs.push_back(mDev->dt.spe1Mac);
         macs.push_back(mDev->dt.spe2Mac);
         macs.push_back(mDev->dt.zbMac);
-
 
         for(int i = 0; i < 1; i ++ ){
 
@@ -65,10 +65,15 @@ bool Test_CoreThread::programFab()
 {
     bool ret = mFab->check();
     if(ret){
-        if(mDt->img.size()){
-
+        if(mIdGen->getImg().size()){
+            ret = mFab->programFull();
         }
+
+        ret = mFab->workDown();
+
     }
+
+    if(ret){mIdGen->setMacs(1);}
 }
 
 void Test_CoreThread::run()
@@ -78,7 +83,7 @@ void Test_CoreThread::run()
 
     switch(mPro->step){
         case Test_Start : workDown();break;
-        case Test_Set : break;
+        case Test_Set : programFab();break;
     }
 
 

@@ -20,6 +20,7 @@ public:
 
 protected:
     QString getTime();
+    void insertText();
 
 private slots:
     void updateTime();
@@ -35,10 +36,11 @@ private slots:
     void on_YesBtn_clicked();
     void uiClear();
     void updateLcd(const QString &message);
-
+    void timeoutDone();
     void on_startBtn_clicked();
     void on_burnBtn_clicked();
-
+    void setTextColor();
+    void onFabSigFromThread(const QString &message);
 private:
     Ui::Home_WorkWid *ui;
 
@@ -51,6 +53,8 @@ private:
     QProcess *process; //运行脚本进程
     bool isCheck;
     QTimer *timer;
+    QTimer *time;
+    int mId;
     bool validateComPort(const QString& comPort);
     Test_CoreThread *mCoreThread;
 };
