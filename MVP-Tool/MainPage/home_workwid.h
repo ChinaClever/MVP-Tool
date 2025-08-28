@@ -17,9 +17,12 @@ public:
     explicit Home_WorkWid(QWidget *parent = nullptr);
     bool pcbCheck();
     ~Home_WorkWid();
-
+    void insertText();
+    void setTextColor();
 protected:
     QString getTime();
+public slots:
+    void timeoutDone();
 signals:
     void renewSig();
 
@@ -53,8 +56,11 @@ private:
     QProcess *process; //运行脚本进程
     bool isCheck;
     QTimer *timer;
+    QTimer *time;
     bool validateComPort(const QString& comPort);
     Test_CoreThread *mCoreThread;
+
+    int mId = 0;
 };
 
 #endif // HOME_WORKWID_H

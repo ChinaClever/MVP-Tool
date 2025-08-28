@@ -134,6 +134,9 @@ void Home_WorkWid::on_startBtn_clicked()
 void Home_WorkWid::initFunSlot()
 {
     mPro->step = Test_End;
+    time = new QTimer(this);
+    time->start(500);  // 每500ms触发一次
+    connect(time, SIGNAL(timeout()), this, SLOT(timeoutDone()));
 }
 
 void Home_WorkWid::workProcess()
@@ -386,6 +389,36 @@ void Home_WorkWid::handle_stdout()
     sb->setValue(sb->maximum());
 }
 
+void Home_WorkWid::insertText()
+{
+    while(mPro->status.size()) {
+        setTextColor();
+        QString str = QString::number(mId++) + "、"+ mPro->status.first() + "\n";
+        ui->textEdit->insertPlainText(str);
+        mPro->status.removeFirst();
+        mPro->pass.removeFirst();
+    }
+}
+
+void Home_WorkWid::timeoutDone()
+{
+    insertText();    // 读取状态并显示
+}
+
+void Home_WorkWid::setTextColor()
+{
+    QColor color("black");
+    bool pass = mPro->pass.first();
+    if(!pass) color = QColor("red");
+    ui->textEdit->moveCursor(QTextCursor::Start);
+
+    QTextCharFormat fmt;
+    fmt.setForeground(color);
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.mergeCharFormat(fmt);
+    ui->textEdit->mergeCurrentCharFormat(fmt);
+}
+
 void Home_WorkWid::updateResult()
 {
     QString style;
@@ -411,16 +444,13 @@ void Home_WorkWid::updateResult()
 void Home_WorkWid::on_burnBtn_clicked()
 {
     mPro->step = Test_Set;
+    mId = 0;
     // 生成一批（6个mac + 1个zigbee），暂存在单例里
     auto batch = DeviceIdGenerator::instance().allocateBatch();
-
-    qDebug() << "sn" << DeviceIdGenerator::instance().CreateSN();
+    DeviceIdGenerator::instance().CreateSN();
+    qDebug() << "sn" << DeviceIdGenerator::instance().getSN();
     qDebug() << "mac:" << batch["mac"];
     qDebug() << "zigbee:" << batch["zigbee"];
 
-    // 烧录
-    if (1) {
-        DeviceIdGenerator::instance().saveMacs(); // 更新配置文件
-    }
 
 }
