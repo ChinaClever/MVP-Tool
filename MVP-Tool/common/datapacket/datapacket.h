@@ -6,6 +6,7 @@
 struct sDevInfo
 {
     QString img;
+    QString unitSn;
 
     QString sn;                // 序列号
     QString hwVersion;         // 硬件版本

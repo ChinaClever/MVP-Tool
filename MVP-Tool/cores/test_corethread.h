@@ -21,7 +21,6 @@ public:
 signals:
     void waitSig();
     void updateLcd(const QString &message);
-    void fabSigToMain(QString str);
 
 protected:
     void run();

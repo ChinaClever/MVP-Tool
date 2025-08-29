@@ -11,7 +11,6 @@ include(cfgcom/cfgcom.pri)
 include(excel/excel.pri)
 include(logcom/logcom.pri)
 include(idgeneratorcom/idgeneratorcom.pri)
-include(qtsingleapplication/qtsingleapplication.pri)
 
 HEADERS += \
     $$PWD/globals/globals.h \

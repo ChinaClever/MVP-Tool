@@ -39,7 +39,7 @@ QList<QSerialPortInfo> SerialPortDialog::getCOMPorts() const
 
     // 获取所有串口并过滤只保留COM开头的
     foreach (const QSerialPortInfo &port, QSerialPortInfo::availablePorts()) {
-        if (port.portName().startsWith("tty")) {
+        if (port.portName().startsWith("COM")) {
             comPorts.append(port);
         }
     }

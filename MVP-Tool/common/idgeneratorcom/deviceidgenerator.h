@@ -1,65 +1,49 @@
 #ifndef DEVICEIDGENERATOR_H
 #define DEVICEIDGENERATOR_H
+
 #include <QString>
 #include <QMap>
-#include <QObject>
+#include <QList>
+
 struct MacRange
 {
-    QString startMac;  // 起始 MAC
-    QString endMac;    // 终止 MAC
+    QString startMac;   // 起始 MAC
+    QString endMac;     // 终止 MAC
     QString currentMac; // 当前已分配的 MAC
 };
 
-struct Macs{
-    QString MAC;
-    QString MAC1;
-    QString MAC2;
-    QString MAC3;
-    QString MAC4;
-    QString BLUETOOTH_MAC;
-    QString ZIGBEE_MAC;
-    QString BOARD_SERIAL = "2Q51234567";
-    QString UNIT_SERIAL;
-    QString SN;
-};
-
-class DeviceIdGenerator : public QObject
+class DeviceIdGenerator
 {
-    Q_OBJECT
 public:
     static DeviceIdGenerator& instance();
+
     QString CreateSN(const QString& type = "Smart");
     QString getSN(){return m_sn;}
-    QString getMac(const QString& type);
+    // ⭐ 一次性分配一批 MAC（mac=6个, zigbee=1个），缓存到类里面
+    QMap<QString, QList<QString>> allocateBatch();
 
-    void initMac(bool x);
+    // ⭐ 成功烧录后调用，才会写配置文件并更新 currentMac
+    void saveMacs();
+
+    // 获取当前范围配置
+    QMap<QString, MacRange> getMacs() const;
+
+    // 初始化范围
+    void initMac();
     void setMacRange(const QString& type, const QString& start, const QString& end);
-
-    QMap<QString,MacRange>getMacs()const;
-    void setImg(QString& img){this->img = img;}
-    QString getImg(){return this->img;}
-    void wirteMac(const QString &type);
-    QString formatMacWithColons(const QString& mac) const;
-
-
-    Macs mac;
-
-public slots:
-     void setMacs(bool );
 
 private:
     DeviceIdGenerator();
     ~DeviceIdGenerator();
-    DeviceIdGenerator& operator=(const DeviceIdGenerator&) = delete;
     DeviceIdGenerator(const DeviceIdGenerator&) = delete;
+    DeviceIdGenerator& operator=(const DeviceIdGenerator&) = delete;
 
-    QString img;
-    QString m_sn;
-    QMap<QString,MacRange>m_macRanges; //ZB ETH
-
-    QString normalizeMac(const QString& mac) const; // 转换成带冒号的格式
     QString incrementMac(const QString& mac);
+    QString normalizeMac(const QString& mac) const;
 
+    QString m_sn;
+    QMap<QString, MacRange> m_macRanges;                // MAC 范围信息
+    QMap<QString, QList<QString>> m_allocated;          // ⭐ 最近生成的一批 MAC
 };
 
 #endif // DEVICEIDGENERATOR_H

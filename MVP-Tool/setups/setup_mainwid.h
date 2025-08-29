@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "usermainwid.h"
 #include "deviceidgenerator.h"
+#include "test_fabpartition.h"
 namespace Ui {
 class Setup_MainWid;
 }
@@ -27,6 +28,7 @@ private:
     Ui::Setup_MainWid *ui;
     SerialStatusWid* mDeWid;
     UserMainWid *mUserWid;
+    Test_Fabpartition *mFab;
 };
 
 #endif // SETUP_MAINWID_H

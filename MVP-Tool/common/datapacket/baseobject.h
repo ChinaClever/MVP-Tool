@@ -1,7 +1,7 @@
 #ifndef BASEOBJECT_H
 #define BASEOBJECT_H
 #include "datapacket.h"
-#include "idgeneratorcom/deviceidgenerator.h"
+#include "deviceidgenerator.h"
 class BaseObject
 {
 public:

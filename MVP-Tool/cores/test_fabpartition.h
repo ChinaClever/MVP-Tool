@@ -1,8 +1,7 @@
 #ifndef TEST_FABPARTITION_H
 #define TEST_FABPARTITION_H
+#include "baseobject.h"
 #include <QObject>
-#include "baselogs.h"
-
 class Test_Fabpartition : public BaseThread
 {
     Q_OBJECT
@@ -13,22 +12,23 @@ public:
     bool check();
     bool programFull();
     bool workDown();
+    bool createFab();
+    bool changePermissions();
     void secure_boot_prov();
-
-protected:
-    bool at91recovery();
-    bool mvFile(bool res);
     bool programFab();
     bool readOutput(QProcess &pro);
-    bool changePermissions();
+
+    bool mvFile(bool);
+protected:
+    bool at91recovery();
     bool devExist();
-    bool createFab();
-    bool isFileExist(const QString &fn);
     int shexec(const char *cmd, char res[][512], int count);
+    bool isFileExist(const QString &fn);
     QString processOn(const QString &cmd);
 
 signals:
     void fabSig(QString str);
+    void renewMacSig();
 
 private:
     QString mDir;
