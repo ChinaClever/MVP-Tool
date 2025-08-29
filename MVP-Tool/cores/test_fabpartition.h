@@ -17,7 +17,8 @@ public:
     void secure_boot_prov();
     bool programFab();
     bool readOutput(QProcess &pro);
-
+    bool enterBootloaderMode();
+    bool programMainFirmware();
     bool mvFile(bool);
 protected:
     bool at91recovery();

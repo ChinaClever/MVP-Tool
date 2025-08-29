@@ -2,7 +2,7 @@
 
 Test_Fabpartition::Test_Fabpartition(QObject *parent):BaseThread(parent)
 {
-    mDir = "/home/ubuntu/MVP3/MVP3/MVP3_Projects/MVP3_FW/";
+    mDir = "./Firmware_Build/4.0.3.5-51776/";
 }
 
 Test_Fabpartition *Test_Fabpartition::build(QObject *parent)
@@ -21,6 +21,7 @@ bool Test_Fabpartition::programFull()
 bool Test_Fabpartition::check()
 {
     bool ret = at91recovery();
+    qDebug()<<"ret :" <<ret;
     if(ret) ret = devExist();
     return ret;
 }
@@ -28,9 +29,10 @@ bool Test_Fabpartition::check()
 bool Test_Fabpartition::at91recovery()
 {
     QString fn = mDir + "at91recovery";
+    qDebug()<<fn;
     bool ret = isFileExist(fn);
     if(ret) {
-        processOn("echo \"123456\" | sudo -S chmod 777 -R Firmware_Build/*"); //？？？
+        processOn("echo \"123456\" | sudo -S chmod +x " + fn); //？？？
     } else {
         updatePro(tr(" at91recovery 执行程序未发现"), ret);
     }
@@ -53,17 +55,23 @@ bool Test_Fabpartition::devExist()
 
 void Test_Fabpartition::secure_boot_prov()
 {
-    QString cmd = "cd " + mDir +"secure_boot_prov-scalepoint-040000-48035/ \n"
+    QString cmd = "cd " + mDir +"secure_boot_prov-scalepoint-040350-51776/ \n"
                                  "echo \"123456\" | sudo -S sh secure_boot_permanent_scalepoint.sh";
     processOn(cmd.toLocal8Bit().data());
     updatePro(tr("启用完全引导"));
 }
 
 
-
 bool Test_Fabpartition::workDown()
 {
     bool ret = check();
+
+
+    //=====================
+//    if(ret) enterBootloaderMode();
+//    if(ret) programMainFirmware();
+    //if(ret) enterBootloaderMode();
+    //=====================
 
     if(ret) ret = createFab();
 
@@ -80,6 +88,48 @@ bool Test_Fabpartition::workDown()
     return ret;
 }
 
+bool Test_Fabpartition::enterBootloaderMode()
+{
+    // 提示用户进行硬件操作
+    updatePro(tr("请执行以下硬件操作：\n"
+                 "1. 关闭MVP3电源\n"
+                 "2. 短接J8跳线\n"
+                 "3. 连接USB线\n"
+                 "4. 给MVP3上电\n"
+                 "5. 等待5秒后断开J8跳线\n"
+                 "等待设备识别..."));
+sleep(10);
+    // 等待设备出现
+    for(int i = 0; i < 30; i++) { // 等待30秒
+        QThread::sleep(1);
+        if(isFileExist("/dev/ttyACM0")) {
+            processOn("echo \"123456\" | sudo -S chmod 777 /dev/ttyACM0");
+            return updatePro(tr("设备已进入Bootloader模式"), true);
+        }
+    }
+
+    return updatePro(tr("设备进入Bootloader模式超时，请检查硬件连接"), false);
+}
+
+
+bool Test_Fabpartition::programMainFirmware()
+{
+    updatePro(tr("准备烧录主固件"));
+
+    QStringList ls;
+    ls << "-y" << "/dev/ttyACM0" << mDir + "aggregator-ixg4_64-040350-51776.bin";
+
+    QProcess pro;
+    pro.start(mDir + "at91recovery", ls);
+
+//    if(!pro.waitForStarted(5000) || !pro.waitForFinished(120000)) {
+//        return updatePro(tr("主固件烧录超时"), false);
+//    }
+
+    bool ret = readOutput(pro);
+    return updatePro(ret ? tr("主固件烧录成功") : tr("主固件烧录失败"), ret);
+}
+
 bool Test_Fabpartition::changePermissions()
 {
     QString str = tr("改变IMG文件的权限");
@@ -87,6 +137,7 @@ bool Test_Fabpartition::changePermissions()
 
     QString cmd = "echo \"123456\" | sudo -S chmod 777 -R " + mDir +
                   "*.img *.bin \n sudo chmod 777 /etc/pki/secure_boot_prov/*";
+
     processOn(cmd.arg(mIdGen->getSN()));
     return updatePro(tr("已")+str);
 }
@@ -153,7 +204,6 @@ bool Test_Fabpartition::createFab()
     return updatePro(tr("create FAB partition"), true);
 }
 
-
 bool Test_Fabpartition::programFab()
 {
     updatePro(tr("准备写入 S/N 和 MAC 地址"));
@@ -187,7 +237,7 @@ bool Test_Fabpartition::programFab()
                          .arg(zigbeeMac);
     logStr += ret ? "\n写入成功" : "\n写入失败";
 
-    mvFile(ret); // 原来的移动或回滚逻辑
+    mvFile(ret); // 烧录成功后将cfg文件和镜像保存到文件夹fabs里
     return updatePro(logStr, ret);
 }
 
@@ -229,11 +279,18 @@ bool Test_Fabpartition::readOutput(QProcess &pro)
 
 bool Test_Fabpartition::isFileExist(const QString &fn)
 {
+    qDebug() << "检查文件路径:" << fn;
+    qDebug() << "绝对路径:" << QFileInfo(fn).absoluteFilePath();
+
     QFile file(fn);
-    if (file.exists()){
-        return true;
+    bool exists = file.exists();
+
+    qDebug() << "文件存在:" << exists;
+    if (!exists) {
+        qDebug() << "错误信息:" << file.errorString();
     }
-    return false;
+
+    return exists;
 }
 int Test_Fabpartition::shexec(const char *cmd, char res[][512], int count)
 {

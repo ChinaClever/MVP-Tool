@@ -66,7 +66,6 @@ void DeviceIdGenerator::initMac()
     settings.endGroup();
 }
 
-// ⭐ 一次生成一批
 QMap<QString, QList<QString>> DeviceIdGenerator::allocateBatch()
 {
     m_allocated.clear();

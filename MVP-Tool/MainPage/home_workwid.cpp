@@ -26,7 +26,7 @@ Home_WorkWid::Home_WorkWid(QWidget *parent)
     auto fab = Test_Fabpartition::build(this);
     connect(fab,&Test_Fabpartition::fabSig,this,[this](const QString &msg){
         QTextCharFormat fmt;
-        fmt.setForeground(QColor("bule"));
+        fmt.setForeground(QColor("blue"));
         ui->textEdit->mergeCurrentCharFormat(fmt);
         ui->textEdit->insertPlainText(msg);
         QTextCursor c = ui->textEdit->textCursor();
