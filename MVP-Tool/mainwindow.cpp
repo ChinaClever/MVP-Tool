@@ -30,7 +30,6 @@ void MainWindow::initWid()
 
 void MainWindow::navBarSlot(int id)
 {
-    qDebug()<<"current page:  "<<id;
     ui->stackedWid->setCurrentIndex(id);
 }
 

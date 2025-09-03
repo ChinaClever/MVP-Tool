@@ -21,7 +21,6 @@ bool Test_Fabpartition::programFull()
 bool Test_Fabpartition::check()
 {
     bool ret = at91recovery();
-    qDebug()<<"ret :" <<ret;
     if(ret) ret = devExist();
     return ret;
 }
@@ -70,10 +69,10 @@ bool Test_Fabpartition::workDown()
     //=====================
 //    if(ret) enterBootloaderMode();
 //    if(ret) programMainFirmware();
-    //if(ret) enterBootloaderMode();
+ //   if(ret) enterBootloaderMode();
     //=====================
 
-    if(ret) ret = createFab();
+     if(ret) ret = createFab();
 
 
      if(ret) ret = changePermissions();
@@ -135,11 +134,19 @@ bool Test_Fabpartition::changePermissions()
     QString str = tr("改变IMG文件的权限");
     updatePro(tr("准备")+str);
 
-    QString cmd = "echo \"123456\" | sudo -S chmod 777 -R " + mDir +
-                  "*.img *.bin \n sudo chmod 777 /etc/pki/secure_boot_prov/*";
+//    QString cmd = "echo \"123456\" | sudo -S chmod 777 -R " + mDir +
+//                  "*.img *.bin \n sudo chmod 777 /etc/pki/secure_boot_prov/*";
 
-    processOn(cmd.arg(mIdGen->getSN()));
-    return updatePro(tr("已")+str);
+//    processOn(cmd.arg(mIdGen->getSN()));
+//    return updatePro(tr("已")+str);
+
+    QString cmd = QString(
+        "echo \"123456\" | sudo -S chmod 777 -R %1*.{img,bin} 2>/dev/null\n"
+        "sudo chmod 777 /etc/pki/secure_boot_prov/* 2>/dev/null")
+        .arg(mDir);                          // <-- PATCH
+    processOn(cmd);                         // <-- PATCH
+    return updatePro(tr("已") + str);
+
 }
 
 bool Test_Fabpartition::createFab()
@@ -223,14 +230,15 @@ bool Test_Fabpartition::programFab()
     QString zigbeeMac = zigbees.value(0, "");
 
     QStringList ls;
-    QProcess pro(this);
+    QProcess pro;
     ls << "-y" << "/dev/ttyACM0" << mDir + boardSN + ".img" << "fab";
+
     pro.start(mDir + "at91recovery", ls);
 
     bool ret = readOutput(pro);
 
     // 生成日志
-    QString logStr = QString("S/N:%1\nMAC0~4:%2,%3,%4,%5,%6\n蓝牙 MAC:%7\nZigbee MAC:%8")
+    QString logStr = QString("S/N:%1\nMAC0~4:%2,\n%3,\n%4,\n%5,\n%6\n蓝牙 MAC:%7\nZigbee MAC:%8")
                          .arg(boardSN)
                          .arg(mac0).arg(mac1).arg(mac2).arg(mac3).arg(mac4)
                          .arg(bluetoothMac)
@@ -264,10 +272,11 @@ bool Test_Fabpartition::readOutput(QProcess &pro)
 {
     bool ret, res = true;
     do {
-        ret = pro.waitForFinished(1000);
+        ret = pro.waitForFinished(5000);
         QByteArray bs = pro.readAllStandardOutput();
         bs +=  pro.readAllStandardError();
         QString str = QString::fromLocal8Bit(bs);
+        qDebug()<<"str:::"<<bs;
         if(str.contains("ERR")) res = false; //else str = str.simplified();
         if(str.size() > 2) emit fabSig(str);
     } while(!ret);
@@ -279,13 +288,9 @@ bool Test_Fabpartition::readOutput(QProcess &pro)
 
 bool Test_Fabpartition::isFileExist(const QString &fn)
 {
-    qDebug() << "检查文件路径:" << fn;
-    qDebug() << "绝对路径:" << QFileInfo(fn).absoluteFilePath();
-
     QFile file(fn);
     bool exists = file.exists();
 
-    qDebug() << "文件存在:" << exists;
     if (!exists) {
         qDebug() << "错误信息:" << file.errorString();
     }

@@ -457,9 +457,34 @@ void Home_WorkWid::on_burnBtn_clicked()
     ui->textEdit->clear();
     mPro->step = Test_Set;
     mId = 0;
+
+    int macRemaining = mIdGen->getRemainingMacCount("mac");
+        if (macRemaining < 6) {
+            if (macRemaining == 0) {
+                QMessageBox::critical(this, "错误", "MAC地址已用完，无法生成！");
+            } else {
+                QMessageBox::warning(this, "警告",
+                    QString("MAC地址不足，剩余%1个，需要6个！").arg(macRemaining));
+            }
+            return;
+        } else if (macRemaining < 100) {
+            QMessageBox::warning(this, "提醒",
+                QString("MAC地址剩余数量较少，仅剩%1个！").arg(macRemaining));
+        }
+
+        // 检查zigbee类型是否足够
+        int zbRemaining = mIdGen->getRemainingMacCount("zigbee");
+        if (zbRemaining < 1) {
+            QMessageBox::critical(this, "错误", "Zigbee MAC地址已用完，无法生成！");
+            return;
+        } else if (zbRemaining < 100) {
+            QMessageBox::warning(this, "提醒",
+                QString("Zigbee MAC地址剩余数量较少，仅剩%1个！").arg(zbRemaining));
+        }
+
     // 生成一批（6个mac + 1个zigbee），暂存在单例里
-    auto batch = DeviceIdGenerator::instance().allocateBatch();
-    DeviceIdGenerator::instance().CreateSN();
+    auto batch = mIdGen->allocateBatch();
+    mIdGen->CreateSN();
 
     mCoreThread->start();
     qDebug() << "sn" << DeviceIdGenerator::instance().getSN();

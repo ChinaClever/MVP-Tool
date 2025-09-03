@@ -19,10 +19,10 @@ public:
 
     QString CreateSN(const QString& type = "Smart");
     QString getSN(){return m_sn;}
-    // ⭐ 一次性分配一批 MAC（mac=6个, zigbee=1个），缓存到类里面
+    //  一次性分配一批 MAC（mac=6个, zigbee=1个），缓存到类里面
     QMap<QString, QList<QString>> allocateBatch();
 
-    // ⭐ 成功烧录后调用，才会写配置文件并更新 currentMac
+    //  成功烧录后调用，才会写配置文件并更新 currentMac
     void saveMacs();
 
     // 获取当前范围配置
@@ -31,6 +31,8 @@ public:
     // 初始化范围
     void initMac();
     void setMacRange(const QString& type, const QString& start, const QString& end);
+    int getRemainingMacCount(const QString& type) const;
+    bool canAllocateMac(const QString& type, int requiredCount = 1) const;
 
 private:
     DeviceIdGenerator();
@@ -43,7 +45,7 @@ private:
 
     QString m_sn;
     QMap<QString, MacRange> m_macRanges;                // MAC 范围信息
-    QMap<QString, QList<QString>> m_allocated;          // ⭐ 最近生成的一批 MAC
+    QMap<QString, QList<QString>> m_allocated;          //  最近生成的一批 MAC
 };
 
 #endif // DEVICEIDGENERATOR_H

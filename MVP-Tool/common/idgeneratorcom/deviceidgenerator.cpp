@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include <QByteArray>
+#include <QDebug>
 
 // 单例
 DeviceIdGenerator& DeviceIdGenerator::instance()
@@ -38,7 +39,7 @@ void DeviceIdGenerator::setMacRange(const QString& type, const QString& start, c
 void DeviceIdGenerator::initMac()
 {
     setMacRange("mac",    "2C:26:5F:38:00:00", "2C:26:5F:38:FF:FF");
-    setMacRange("zigbee", "1C:26:5F:38:00:00", "1C:26:5F:38:FF:FF");
+    setMacRange("zigbee", "00:04:74:00:01:10:A0:00", "00:04:74:00:01:10:FF:FF");
 
     QSettings settings(QCoreApplication::applicationDirPath() + "/db/MVP3/cfg.ini", QSettings::IniFormat);
     settings.beginGroup("device");
@@ -66,7 +67,7 @@ void DeviceIdGenerator::initMac()
     settings.endGroup();
 }
 
-QMap<QString, QList<QString>> DeviceIdGenerator::allocateBatch()
+QMap<QString, QList<QString>> DeviceIdGenerator::allocateBatch() //返回7个mac地址
 {
     m_allocated.clear();
 
@@ -95,7 +96,7 @@ QMap<QString, QList<QString>> DeviceIdGenerator::allocateBatch()
     return m_allocated;
 }
 
-void DeviceIdGenerator::saveMacs()
+void DeviceIdGenerator::saveMacs() //保存mac至配置文件
 {
     if (m_allocated.isEmpty()) return;
 
@@ -193,4 +194,44 @@ QString DeviceIdGenerator::incrementMac(const QString& mac)
 
     return ret;
 }
+int DeviceIdGenerator::getRemainingMacCount(const QString& type) const
+{
+    if (!m_macRanges.contains(type)) {
+        qWarning() << "Unknown MAC type:" << type;
+        return 0;
+    }
 
+    const MacRange& range = m_macRanges[type];
+
+    // 获取当前 MAC 和结束 MAC
+    QString current = range.currentMac.isEmpty() ? range.startMac : range.currentMac;
+    QString end = range.endMac;
+
+    // 移除冒号进行比较
+    QString currentHex = current;
+    currentHex.remove(':');
+    QString endHex = end;
+    endHex.remove(':');
+
+    // 转换为数值进行比较
+    bool ok1, ok2;
+    quint64 currentVal = currentHex.toULongLong(&ok1, 16);
+    quint64 endVal = endHex.toULongLong(&ok2, 16);
+
+    if (!ok1 || !ok2) {
+        qWarning() << "Invalid MAC address format";
+        return 0;
+    }
+
+    // 确保不会出现负数
+    if (currentVal >= endVal) {
+        return 0;
+    }
+
+    return static_cast<int>(endVal - currentVal);
+}
+
+bool DeviceIdGenerator::canAllocateMac(const QString& type, int requiredCount) const
+{
+    return getRemainingMacCount(type) >= requiredCount;
+}
