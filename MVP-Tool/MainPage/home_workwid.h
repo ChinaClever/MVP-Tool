@@ -1,6 +1,5 @@
 #ifndef HOME_WORKWID_H
 #define HOME_WORKWID_H
-#include "metadatastruct.h"
 #include <QWidget>
 #include <QProcess>
 #include <baseobject.h>
@@ -15,11 +14,11 @@ class Home_WorkWid : public QWidget,public BaseObject
 
 public:
     explicit Home_WorkWid(QWidget *parent = nullptr);
-    bool pcbCheck();
     ~Home_WorkWid();
 
 protected:
     QString getTime();
+    void checkLab();
 
 private slots:
     void updateTime();
@@ -28,19 +27,18 @@ private slots:
     void intiTest();   //初始化输出框
     void workProcess();
     void initFunSlot();
+    void initLcdNum();
     void updateResult();
     void handle_stdout();  // 处理标准输出
- //   void saveCurrentData(); // 新增保存按钮槽函数
 
     void on_NoBtn_clicked();
     void on_YesBtn_clicked();
     void uiClear();
     void updateLcd(const QString &message);
 
+
 private:
     Ui::Home_WorkWid *ui;
-
-    InterfaceInfo infoData;
 
     QString scriptPath;
     QString arg;

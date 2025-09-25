@@ -4,7 +4,7 @@ FORMS += \
 HEADERS += \
     $$PWD/createini.h \
     $$PWD/home_workwid.h \
-    $$PWD/metadatastruct.h
+   # $$PWD/metadatastruct.h
 
 SOURCES += \
     $$PWD/createini.cpp \

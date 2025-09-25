@@ -77,10 +77,10 @@ public:
     void setCurrentNum();
     void write(const QString &key, const QVariant& v, const QString &g="cfg");
     QVariant read(const QString &key, const QVariant &v = QVariant(), const QString &g="cfg");
+    void initCnt();
 
 protected:
     void initMac();
-    void initCnt();
     bool getDate();
     void setDate();
     void initCfgDev();

@@ -97,7 +97,6 @@ void Cfg::writeCnt()
     write("all", item->cnt.all, "Count");
     write("ok", item->cnt.ok, "Count");
     write("err", item->cnt.err, "Count");
-    write("user", item->user, "User");
 }
 
 

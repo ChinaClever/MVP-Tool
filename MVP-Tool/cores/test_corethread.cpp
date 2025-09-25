@@ -61,7 +61,6 @@ void Test_CoreThread::run()
             result = createIni::toIni2(&mDev->dt,macs[i]);
         }
         emit updateLcd(result);
-        // 最后执行 WriteLog  
     }
 
     workResult();

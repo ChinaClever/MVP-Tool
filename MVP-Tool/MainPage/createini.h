@@ -1,6 +1,5 @@
 #ifndef CREATEINI_H
 #define CREATEINI_H
-#include "metadatastruct.h"
 #include <QObject>
 #include "baseobject.h"
 

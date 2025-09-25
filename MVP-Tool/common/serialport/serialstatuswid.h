@@ -17,7 +17,6 @@ public:
 
 private slots:
     void on_comBtn_clicked();
-    void setupSerialConnection(const QString &portName, int baudRate);
 private:
     Ui::SerialStatusWid *ui;
     QSerialPort *serial;
