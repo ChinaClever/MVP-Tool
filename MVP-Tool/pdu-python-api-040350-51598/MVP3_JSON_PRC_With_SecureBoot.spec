@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['MVP3_JSON_PRC_With_SecureBoot.py'],
+    ['D:\\GitHub\\MVP-Tool\\MVP-Tool\\pdu-python-api-040350-51598\\MVP3_JSON_PRC_With_SecureBoot.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -29,7 +29,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

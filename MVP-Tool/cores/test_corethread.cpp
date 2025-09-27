@@ -56,9 +56,10 @@ void Test_CoreThread::run()
         macs.push_back(mDev->dt.zbMac);
 
 
-        for(int i = 0; i < 1; i ++ ){
-
-            result = createIni::toIni2(&mDev->dt,macs[i]);
+        for(int j = 0; j < 4; j ++){
+            for(int i = 0; i < 1; i ++ ){
+                result = createIni::toIni2(&mDev->dt,macs[i]); //小标签
+            }
         }
         emit updateLcd(result);
     }

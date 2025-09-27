@@ -53,7 +53,7 @@ QString createIni::toIni1(sDevInfo* data) {
     str2 += rf + "," + qr;
     qDebug() << "Header:" << str;
     qDebug() << "Values:" << str2;
-    return httpPostIni(str + "\n" + str2,"80"); // 返回 header 和 values，换行分隔
+    return httpPostIni(str + "\n" + str2,"16","80"); // 返回 header 和 values，换行分隔
 }
 
 QString createIni::toIni2(sDevInfo* data, const QString mac)
@@ -65,17 +65,22 @@ QString createIni::toIni2(sDevInfo* data, const QString mac)
     // 拼接字段，注意按顺序对应 str 里的字段名
     QString ss = data->sn.right(5);
 
-    QString str2 = "("+mac+"),"+ss+",";
-    QString SN = data->sn , MAC = mac;
-    QString qr = "https://podview.legrand.com/qr?s=" + SN + "&m=" + MAC;
+    auto cleanMac = [](QString mac) {
+        return mac.replace(":", "");
+    };
+    QString Mac = cleanMac(mac);
+
+    QString str2 = "("+Mac+"),"+ss+",";
+    QString SN = data->sn , sMAC = Mac;
+    QString qr = "https://podview.legrand.com/qr?s=" + SN + "&m=" + sMAC;
     str2 += qr;
 
-    return httpPostIni(str + "\n" + str2,"81");
+    return httpPostIni(str + "\n" + str2,"17","81");
 }
 
-QString createIni::httpPostIni(const QString& data, const QString& host) {
+QString createIni::httpPostIni(const QString& data,const QString ip, const QString& host) {
     // 构造 URL
-    QString url = QString("http://%1:%2/Integration/MVP3/Execute").arg("192.168.1.16").arg(host);
+    QString url = QString("http://%1:%2/Integration/MVP3/Execute").arg("192.168.1." + ip).arg(host);
     qDebug() << "URL:" << url;
     qDebug() << "Data:" << data;
     QString str = "";

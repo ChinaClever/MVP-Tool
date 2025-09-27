@@ -55,6 +55,16 @@ void Cfg::setCurrentNum()
     write("num", item->currentNum, "Date");
 }
 
+void Cfg::writeFwVersion(const QString &ver)
+{
+    write("Fw", ver, "FwVersion");
+}
+
+QString Cfg::getFwVersion()
+{
+    return read("Fw", "", "FwVersion").toString();
+}
+
 void Cfg::initCurrentNum()
 {
     bool ret = getDate();

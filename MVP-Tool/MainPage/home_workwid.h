@@ -19,6 +19,8 @@ public:
 protected:
     QString getTime();
     void checkLab();
+    void checkMac(int tp,const QString& mac);
+    void checkPn(const QString &sn);
 
 private slots:
     void updateTime();
@@ -30,12 +32,13 @@ private slots:
     void initLcdNum();
     void updateResult();
     void handle_stdout();  // 处理标准输出
-
     void on_NoBtn_clicked();
     void on_YesBtn_clicked();
     void uiClear();
     void updateLcd(const QString &message);
 
+
+    void on_ReviseBtn_clicked();
 
 private:
     Ui::Home_WorkWid *ui;

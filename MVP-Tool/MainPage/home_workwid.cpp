@@ -45,8 +45,8 @@ bool Home_WorkWid::intiarg()
 
     QString dir = QDir::currentPath();
 
-    // scriptPath = dir + "/MVP3_JSON_PRC_With_SecureBoot.exe";
-    scriptPath = "D:/GitHub/MVP-Tool/MVP-Tool/pdu-python-api-040350-51598/dist/MVP3_JSON_PRC_With_SecureBoot.exe";
+    scriptPath = dir + "/MVP3_JSON_PRC_With_SecureBoot.exe";
+    //scriptPath = "D:/GitHub/MVP-Tool/MVP-Tool/pdu-python-api-040350-51598/dist/MVP3_JSON_PRC_With_SecureBoot.exe";
     //scriptPath = "D:/GitHub/MVP-Tool/MVP-Tool/pdu-python-api-040350-51598/MVP3_JSON_PRC_With_SecureBoot.py";
 
     if (!QFile::exists(scriptPath)) {
@@ -111,6 +111,10 @@ void Home_WorkWid::on_startBtn_clicked()
 
 void Home_WorkWid::initFunSlot()
 {
+    Cfg *cfg = Cfg::bulid();
+    QString fw = cfg->getFwVersion();   // 或者 cfg->read("Fw", "", "FwVersion").toString();
+    ui->LineFwVersion->setText(fw);
+    ui->LineFwVersion->setEnabled(false);
     mPro->step = Test_End;
 }
 
@@ -257,6 +261,68 @@ bool Home_WorkWid::validateComPort(const QString& comPort)
     return true;
 }
 
+void Home_WorkWid::checkMac(int tp, const QString &mac)
+{
+    QString cleanMac = mac;
+    cleanMac.remove(QRegularExpression("[:-]")).toUpper();
+
+    QByteArray macBytes = QByteArray::fromHex(cleanMac.toLatin1());
+
+    QByteArray start, end;
+    if (tp == 0) { // 普通 MAC
+        start = QByteArray::fromHex("0004742D0100");
+        end   = QByteArray::fromHex("0004742DFFFF");
+    }
+    else if (tp == 1) { // Zigbee
+        start = QByteArray::fromHex("000474000110A040");
+        end   = QByteArray::fromHex("000474000110FFFF");
+    }
+    else {
+        return;
+    }
+
+    // 判断是否在范围内
+    if (macBytes < start || macBytes > end) {
+        ui->textEdit->append("MAC 地址不在范围内！");
+        allTestState = false;
+        // mDev->dt.reason += " MAC 地址不在范围内";
+    } else {
+        ui->textEdit->append("MAC 地址合格。");
+    }
+}
+
+
+void Home_WorkWid::checkPn(const QString &sn)
+{
+    if (sn.length() != 11) {
+        ui->textEdit->append("SN码长度应为11位！");
+        allTestState = false;
+        mDev->dt.reason += " SN码长度不合格";
+        return;
+    }
+
+    QString expectedFactor = "048";
+    QString expectedTp = "2";
+    QString expectedBench = "01";
+    QString expectedFree = "00";
+
+    QString factor = sn.mid(0, 3);
+    QString tp = sn.mid(3, 1);
+    QString bench = sn.mid(4, 2);
+    QString free = sn.mid(9, 2);
+
+    // 检查固定部分是否都符合
+    if (factor != expectedFactor || tp != expectedTp || bench != expectedBench || free != expectedFree) {
+        ui->textEdit->append("SN码固定部分不合格！");
+        allTestState = false;
+        mDev->dt.reason += " SN码固定部分不合格";
+        return;
+    }
+    ui->textEdit->append("SN码符合标准范围");
+}
+
+
+
 void Home_WorkWid::on_NoBtn_clicked()
 {
     if (process && process->state() == QProcess::Running) {
@@ -293,12 +359,16 @@ void Home_WorkWid::handle_stdout()
             else if (iface == "eth2") ui->eth2Lab->setText(value),mDev->dt.eth3Mac = value;
             else if (iface == "spe0") ui->spe0Lab->setText(value),mDev->dt.spe1Mac = value;
             else if (iface == "spe1") ui->spe1Lab->setText(value),mDev->dt.spe2Mac = value;
+
+            checkMac(0,value);
             continue;
         }
         QRegularExpressionMatch serialMatch = serialRegex.match(line);
         if (serialMatch.hasMatch()) {
             QString serial = serialMatch.captured(1);
-            ui->snLab->setText(serial),mDev->dt.sn = serial;
+            ui->snLab->setText(serial);
+            mDev->dt.sn = serial;
+            checkPn(serial);
             continue;
         }
         QRegularExpressionMatch boardMatch = boardRegex.match(line);
@@ -311,18 +381,26 @@ void Home_WorkWid::handle_stdout()
         if (zbMatch.hasMatch()) {
             QString zb = zbMatch.captured(1);
             ui->zbLab->setText(zb),mDev->dt.zbMac = zb;
+            checkMac(1,zb);
             continue;
         }
         QRegularExpressionMatch btMatch = btRegex.match(line);
         if (btMatch.hasMatch()) {
             QString bt = btMatch.captured(1);
             ui->btLab->setText(bt),mDev->dt.btMac = bt;
+            checkMac(0,bt);
             continue;
         }
         QRegularExpressionMatch fwMatch = fwRegex.match(line);
         if (fwMatch.hasMatch()) {
             QString fw = fwMatch.captured(1);
             ui->fwLab->setText(fw),mDev->dt.fwVersion = fw;
+
+            if(fw != ui->LineFwVersion->text()){
+                allTestState = false;
+                ui->textEdit->append("固件版本错误，请检查修改固件版本 !");
+            }
+
             continue;
         }
         QRegularExpressionMatch hwMatch = hwRegex.match(line);
@@ -355,3 +433,20 @@ void Home_WorkWid::updateResult()
     str = QTime::currentTime().toString("hh:mm:ss");
     ui->endLab->setText(str);
 }
+
+void Home_WorkWid::on_ReviseBtn_clicked()
+{
+    if (ui->ReviseBtn->text() == "修改") {
+        ui->ReviseBtn->setText("保存");
+        ui->LineFwVersion->setEnabled(true);
+    } else {
+        ui->ReviseBtn->setText("修改");
+        ui->LineFwVersion->setEnabled(false);
+
+        // 保存新版本号
+        QString fw = ui->LineFwVersion->text();
+        Cfg *cfg = Cfg::bulid();
+        cfg->writeFwVersion(fw);
+    }
+}
+

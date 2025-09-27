@@ -49,6 +49,7 @@ struct sCfgItem
     uchar aiMode;
     uchar pcNum;
     ushort currentNum;
+    QString FwVersion;
 
 
 };
@@ -73,6 +74,9 @@ public:
     void wirteMac();
     void writeCnt();
     void writeCfgDev();
+
+    void writeFwVersion(const QString &ver);
+    QString getFwVersion();
 
     void setCurrentNum();
     void write(const QString &key, const QVariant& v, const QString &g="cfg");

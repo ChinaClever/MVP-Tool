@@ -12,4 +12,4 @@ QRegularExpression fwRegex(R"(FwRevision=(\S+))");       // FwRevision=xxx
 QRegularExpression macRegex(R"(MacAddress=(\S+))");       // MacAddress=xxx
 QRegularExpression zbRegex(R"(ZB\s*[:：]\s*(\S+))");           // 匹配 "ZB: xxx"（若输出含ZigBee信息）
 QRegularExpression btRegex(R"(BT\s*[:：]\s*(\S+))");           // 匹配 "BT: xxx"（若输出含蓝牙信息）
-QRegularExpression boardRegex(R"(BOARD_SERIAL\s*=\s*(\S+))");
+QRegularExpression boardRegex(R"(BOARD_SERIAL\s*:\s*(\S+))");

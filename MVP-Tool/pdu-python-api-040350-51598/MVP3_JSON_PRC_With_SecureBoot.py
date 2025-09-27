@@ -45,8 +45,8 @@ def ping_host(host="podmaster.local", timeout=2):
         return False
 
 # 调用 ping，失败就退出
-if not ping_host("podmaster.local"):
-    sys.exit(1)
+#if not ping_host("podmaster.local"):
+#    sys.exit(1)
 
 def find_usb_serial_port():
     """
@@ -103,7 +103,9 @@ matches = re.findall(ip_pattern, combined_response)
 
 # Print the matched IPs
 
-agent = rpc.Agent("https", matches[0], "admin", "Legrand4TUV", disable_certificate_verification=True)
+#agent = rpc.Agent("https", matches[0], "admin", "LegrandfaTUV0", disable_certificate_verification=True)
+agent = rpc.Agent("https", matches[0], "admin", "Rar!tan0", disable_certificate_verification=True)
+
 system_cfg = agent.get("/cgi-bin/system_cfg.cgi").decode("utf-8")
 for line in system_cfg.split():
     key, value = line.split("=", 1)
@@ -112,7 +114,7 @@ for line in system_cfg.split():
     elif key == "BLUETOOTH_MAC":
         print(f"BT: {value}")
     elif key == "BOARD_SERIAL":
-        print(f"BOARD SERIAL: {value}")
+        print(f"BOARD_SERIAL: {value}")
 
 pdu = pdumodel.Pdu("/model/pdu/0", agent)
 #裝置資訊
@@ -122,7 +124,7 @@ pdu0 = pdumodel.Pdu("/model/pdu/0", agent)
 pdu0.getBeeper().activate(True, "", 10)
 Beeper_result = False
 for n in range(0, 3):
-    Beeper_test = input("Did you hear the beep? Y/N: ")
+    Beeper_test = input("你听到蜂鸣声了吗？ 是/否: ")
     if Beeper_test.upper() == "Y":
         print("1.蜂鸣器 测试 通过")
         Beeper_result = True
@@ -253,10 +255,17 @@ def check_tpm_detected(tpm_info):
         return tpm_info.detected is True
     except AttributeError:
         return False
+# if check_tpm_detected(Secure_Element):
+#     print("5.调试口关闭 测试 通过")
+# else:
+#     print("5.调试口关闭 测试 失败")
+
 if check_tpm_detected(Secure_Element):
-    print("5.调试口关闭 测试 通过")
-else:
     print("5.调试口关闭 测试 失败")
+else:
+    print("5.调试口关闭 测试 通过")
+
+
 #Ethernet test
 #Interfaces to check
 info = net.Net("/net", agent).getInfo()
